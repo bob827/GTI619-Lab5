@@ -11,7 +11,7 @@ namespace GTI619_Lab5.Controllers
         // GET: Account
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("Login");
         }
 
         public ActionResult Login()
