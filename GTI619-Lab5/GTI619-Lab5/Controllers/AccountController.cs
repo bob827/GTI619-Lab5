@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using GTI619_Lab5.Attributes;
+using GTI619_Lab5.Models.Account;
 
 namespace GTI619_Lab5.Controllers
 {
+    [RequireHttps]
     public class AccountController : Controller
     {
         // GET: Account
@@ -20,9 +25,25 @@ namespace GTI619_Lab5.Controllers
         }
 
         [HttpPost]
-        public ActionResult Login(string username, string password)
+        [ValidateAntiForgeryToken]
+        public ActionResult Login(LoginModel model)
         {
-            return View();
+            if (!ModelState.IsValid)
+            {
+                model.Password = string.Empty;
+                return View(model);
+            }
+
+            // try login
+            // todo on invalid login add to counter in db
+            ModelState.AddModelError("", "Invalid username or password.");
+            model.Password = string.Empty;
+            return View(model);
+
+            //if(userIsAdmin(userId) 
+            //    return RedirectToAction("Index", "Admin");
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

@@ -1,0 +1,30 @@
+﻿@model GTI619_Lab5.Models.Admin.IndexModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Users</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.UserDictionary)
+        {
+            <tr>
+                <td>
+                    @user.Value
+                </td>
+                <td>
+                        @Html.ActionLink("Reset Password", "ResetUserPassword", new { id = user.Key }, new { @class = "btn btn-default btn-sm" })
+                        @Html.ActionLink("Delete Account", "DeleteAccount", new { id = user.Key }, new { @class = "btn btn-default btn-sm" })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

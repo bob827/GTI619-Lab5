@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace GTI619_Lab5.Controllers
 {
+    [RequireHttps]
     public class HomeController : Controller
     {
         // GET: Home
