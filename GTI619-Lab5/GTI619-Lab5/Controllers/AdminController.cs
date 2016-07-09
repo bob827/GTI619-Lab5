@@ -46,7 +46,7 @@ namespace GTI619_Lab5.Controllers
             }
             
             // ValidatePassword()
-            ModelState.AddModelError("", "Password is not valid.");
+            ModelState.AddModelError("", "Admin Password is not valid.");
 
             model.AdminPassword = string.Empty;
             return View(model);
@@ -78,6 +78,28 @@ namespace GTI619_Lab5.Controllers
                 return View(model);
             }
             return View();
+        }
+
+        public ActionResult CreateUser()
+        {
+            var model = new CreateUserModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult CreateUser(CreateUserModel model)
+        {
+            s_logger.Info("Creating a new user");
+            if (!ModelState.IsValid)
+            {
+                model.AdminPassword = string.Empty;
+                return View(model);
+            }
+            // ValidatePassword()
+            ModelState.AddModelError("", "Admin Password is not valid.");
+
+            model.AdminPassword = string.Empty;
+            return View(model);
         }
     }
 }

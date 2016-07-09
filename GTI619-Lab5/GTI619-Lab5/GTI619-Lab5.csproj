@@ -153,6 +153,7 @@
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Logger\LogManager.cs" />
     <Compile Include="Models\Account\LoginModel.cs" />
+    <Compile Include="Models\Admin\CreateUserModel.cs" />
     <Compile Include="Models\Admin\GlobalSecuritySettingsModel.cs" />
     <Compile Include="Models\Admin\IndexModel.cs" />
     <Compile Include="Models\Admin\ResetUserPasswordModel.cs" />
@@ -171,6 +172,7 @@
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\ResetUserPassword.cshtml" />
     <Content Include="Views\Admin\GlobalSecuritySettings.cshtml" />
+    <None Include="Views\Admin\CreateUser.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
