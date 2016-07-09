@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GTI619_Lab5.Attributes;
+using GTI619_Lab5.Logger;
 using GTI619_Lab5.Models.Admin;
 
 namespace GTI619_Lab5.Controllers
@@ -11,6 +12,8 @@ namespace GTI619_Lab5.Controllers
     [RoleAccess("Admin"), RequireHttps]
     public class AdminController : Controller
     {
+        private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AdminController));
+
         // GET: Admin
         public ActionResult Index()
         {
@@ -23,6 +26,7 @@ namespace GTI619_Lab5.Controllers
 
         public ActionResult ResetUserPassword(Guid id)
         {
+            s_logger.Info(string.Format("Reseting password of user {0}", id));
             var model = new ResetUserPasswordModel
             {
                 UserId = id,
@@ -34,6 +38,7 @@ namespace GTI619_Lab5.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult ResetUserPassword(Guid id, ResetUserPasswordModel model)
         {
+            s_logger.Info(string.Format("Reseting password of user {0}", id));
             if (!ModelState.IsValid)
             {
                 model.AdminPassword = string.Empty;
@@ -66,6 +71,7 @@ namespace GTI619_Lab5.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult GlobalSecuritySettings(GlobalSecuritySettingsModel model)
         {
+            s_logger.Info("Changing global security settings");
             if (!ModelState.IsValid)
             {
                 model.AdminPassword = string.Empty;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using GTI619_Lab5.Attributes;
+using GTI619_Lab5.Logger;
 using GTI619_Lab5.Models.Account;
 
 namespace GTI619_Lab5.Controllers
@@ -13,6 +14,8 @@ namespace GTI619_Lab5.Controllers
     [RequireHttps]
     public class AccountController : Controller
     {
+        private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AccountController));
+
         // GET: Account
         public ActionResult Index()
         {
@@ -28,6 +31,7 @@ namespace GTI619_Lab5.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginModel model)
         {
+            s_logger.Debug(string.Format("Login attempt with user {0}", model.Username));
             if (!ModelState.IsValid)
             {
                 model.Password = string.Empty;
