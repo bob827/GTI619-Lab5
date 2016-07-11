@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="DatabaseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AdminOptions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MinPasswordLength" Type="int" Nullable="false" />
+          <Property Name="IsUpperCaseCharacterRequired" Type="bit" Nullable="false" />
+          <Property Name="IsLowerCaseCharacterRequired" Type="bit" Nullable="false" />
+          <Property Name="IsNumberRequired" Type="bit" Nullable="false" />
+          <Property Name="IsSpecialCharacterRequired" Type="bit" Nullable="false" />
+          <Property Name="MaxLoginAttempt" Type="int" Nullable="false" />
+          <Property Name="TimeoutAfterMaxLoginReachedInMinutes" Type="int" Nullable="false" />
+          <Property Name="PasswordExpirationDurationInDays" Type="int" Nullable="false" />
+          <Property Name="NumberOfPasswordToKeepInHistory" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AuthenticationTokens">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="ExpirationDate" Type="date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LoginAttemps">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="IsSuccessful" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PasswordHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="PasswordSalt" Type="nvarchar" MaxLength="128" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Roles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoleName" Type="nvarchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserRoles">
+          <Key>
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="RoleId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Username" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="PasswordSalt" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="IsLocked" Type="bit" Nullable="false" />
+          <Property Name="TimeoutEndDate" Type="datetime" />
+          <Property Name="PasswordExpirationDate" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_AuthenticationTokens_ToUser">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="AuthenticationTokens" Type="Self.AuthenticationTokens" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AuthenticationTokens">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LoginAttemps_ToUser">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="LoginAttemps" Type="Self.LoginAttemps" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LoginAttemps">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PasswordHistory_ToUsers">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="PasswordHistory" Type="Self.PasswordHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PasswordHistory">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserRoles_ToRoles">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="1" />
+          <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="UserRoles">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserRoles_ToUsers">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="UserRoles">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DatabaseModelStoreContainer">
+          <EntitySet Name="AdminOptions" EntityType="Self.AdminOptions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationTokens" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LoginAttemps" EntityType="Self.LoginAttemps" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PasswordHistory" EntityType="Self.PasswordHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_AuthenticationTokens_ToUser" Association="Self.FK_AuthenticationTokens_ToUser">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="AuthenticationTokens" EntitySet="AuthenticationTokens" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LoginAttemps_ToUser" Association="Self.FK_LoginAttemps_ToUser">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="LoginAttemps" EntitySet="LoginAttemps" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PasswordHistory_ToUsers" Association="Self.FK_PasswordHistory_ToUsers">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="PasswordHistory" EntitySet="PasswordHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserRoles_ToRoles" Association="Self.FK_UserRoles_ToRoles">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserRoles_ToUsers" Association="Self.FK_UserRoles_ToUsers">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="UserRoles" EntitySet="UserRoles" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DatabaseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="AdminOption">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MinPasswordLength" Type="Int32" Nullable="false" />
+          <Property Name="IsUpperCaseCharacterRequired" Type="Boolean" Nullable="false" />
+          <Property Name="IsLowerCaseCharacterRequired" Type="Boolean" Nullable="false" />
+          <Property Name="IsNumberRequired" Type="Boolean" Nullable="false" />
+          <Property Name="IsSpecialCharacterRequired" Type="Boolean" Nullable="false" />
+          <Property Name="MaxLoginAttempt" Type="Int32" Nullable="false" />
+          <Property Name="TimeoutAfterMaxLoginReachedInMinutes" Type="Int32" Nullable="false" />
+          <Property Name="PasswordExpirationDurationInDays" Type="Int32" Nullable="false" />
+          <Property Name="NumberOfPasswordToKeepInHistory" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AuthenticationToken">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="ExpirationDate" Type="DateTime" Nullable="false" Precision="0" />
+          <NavigationProperty Name="User" Relationship="Self.FK_AuthenticationTokens_ToUser" FromRole="AuthenticationTokens" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="LoginAttemp">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsSuccessful" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_LoginAttemps_ToUser" FromRole="LoginAttemps" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="PasswordHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordSalt" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="PasswordHistory" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoleName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Users" Relationship="Self.UserRoles" FromRole="Roles" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordSalt" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IsLocked" Type="Boolean" Nullable="false" />
+          <Property Name="TimeoutEndDate" Type="DateTime" Precision="3" />
+          <Property Name="PasswordExpirationDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="AuthenticationTokens" Relationship="Self.FK_AuthenticationTokens_ToUser" FromRole="Users" ToRole="AuthenticationTokens" />
+          <NavigationProperty Name="LoginAttemps" Relationship="Self.FK_LoginAttemps_ToUser" FromRole="Users" ToRole="LoginAttemps" />
+          <NavigationProperty Name="PasswordHistories" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="Users" ToRole="PasswordHistory" />
+          <NavigationProperty Name="Roles" Relationship="Self.UserRoles" FromRole="Users" ToRole="Roles" />
+        </EntityType>
+        <Association Name="FK_AuthenticationTokens_ToUser">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="AuthenticationTokens" Type="Self.AuthenticationToken" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AuthenticationTokens">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LoginAttemps_ToUser">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="LoginAttemps" Type="Self.LoginAttemp" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LoginAttemps">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PasswordHistory_ToUsers">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="PasswordHistory" Type="Self.PasswordHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PasswordHistory">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="UserRoles">
+          <End Role="Roles" Type="Self.Role" Multiplicity="*" />
+          <End Role="Users" Type="Self.User" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="DatabaseEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AdminOptions" EntityType="Self.AdminOption" />
+          <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationToken" />
+          <EntitySet Name="LoginAttemps" EntityType="Self.LoginAttemp" />
+          <EntitySet Name="PasswordHistories" EntityType="Self.PasswordHistory" />
+          <EntitySet Name="Roles" EntityType="Self.Role" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_AuthenticationTokens_ToUser" Association="Self.FK_AuthenticationTokens_ToUser">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="AuthenticationTokens" EntitySet="AuthenticationTokens" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LoginAttemps_ToUser" Association="Self.FK_LoginAttemps_ToUser">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="LoginAttemps" EntitySet="LoginAttemps" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PasswordHistory_ToUsers" Association="Self.FK_PasswordHistory_ToUsers">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="PasswordHistory" EntitySet="PasswordHistories" />
+          </AssociationSet>
+          <AssociationSet Name="UserRoles" Association="Self.UserRoles">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="Users" EntitySet="Users" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DatabaseModelStoreContainer" CdmEntityContainer="DatabaseEntities">
+          <EntitySetMapping Name="AdminOptions">
+            <EntityTypeMapping TypeName="DatabaseModel.AdminOption">
+              <MappingFragment StoreEntitySet="AdminOptions">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="MinPasswordLength" ColumnName="MinPasswordLength" />
+                <ScalarProperty Name="IsUpperCaseCharacterRequired" ColumnName="IsUpperCaseCharacterRequired" />
+                <ScalarProperty Name="IsLowerCaseCharacterRequired" ColumnName="IsLowerCaseCharacterRequired" />
+                <ScalarProperty Name="IsNumberRequired" ColumnName="IsNumberRequired" />
+                <ScalarProperty Name="IsSpecialCharacterRequired" ColumnName="IsSpecialCharacterRequired" />
+                <ScalarProperty Name="MaxLoginAttempt" ColumnName="MaxLoginAttempt" />
+                <ScalarProperty Name="TimeoutAfterMaxLoginReachedInMinutes" ColumnName="TimeoutAfterMaxLoginReachedInMinutes" />
+                <ScalarProperty Name="PasswordExpirationDurationInDays" ColumnName="PasswordExpirationDurationInDays" />
+                <ScalarProperty Name="NumberOfPasswordToKeepInHistory" ColumnName="NumberOfPasswordToKeepInHistory" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AuthenticationTokens">
+            <EntityTypeMapping TypeName="DatabaseModel.AuthenticationToken">
+              <MappingFragment StoreEntitySet="AuthenticationTokens">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ExpirationDate" ColumnName="ExpirationDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LoginAttemps">
+            <EntityTypeMapping TypeName="DatabaseModel.LoginAttemp">
+              <MappingFragment StoreEntitySet="LoginAttemps">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="IsSuccessful" ColumnName="IsSuccessful" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PasswordHistories">
+            <EntityTypeMapping TypeName="DatabaseModel.PasswordHistory">
+              <MappingFragment StoreEntitySet="PasswordHistory">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="PasswordSalt" ColumnName="PasswordSalt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="DatabaseModel.Role">
+              <MappingFragment StoreEntitySet="Roles">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="DatabaseModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="PasswordSalt" ColumnName="PasswordSalt" />
+                <ScalarProperty Name="IsLocked" ColumnName="IsLocked" />
+                <ScalarProperty Name="TimeoutEndDate" ColumnName="TimeoutEndDate" />
+                <ScalarProperty Name="PasswordExpirationDate" ColumnName="PasswordExpirationDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="UserRoles" TypeName="DatabaseModel.UserRoles" StoreEntitySet="UserRoles">
+            <EndProperty Name="Roles">
+              <ScalarProperty Name="Id" ColumnName="RoleId" />
+            </EndProperty>
+            <EndProperty Name="Users">
+              <ScalarProperty Name="Id" ColumnName="UserId" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
