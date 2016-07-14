@@ -5,11 +5,11 @@
 }
 
 <h2>Global Security Settings</h2>
-<hr/>
+<hr />
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
@@ -29,6 +29,36 @@
             </div>
         </div>
 
+        <div class="form-group">
+            @Html.LabelFor(model => model.TimeoutAfterMaxLoginReachedInMinutes, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                <div class="input-group">
+                    @Html.EditorFor(model => model.TimeoutAfterMaxLoginReachedInMinutes, new { htmlAttributes = new { @class = "form-control" } })
+                    <span class="input-group-addon">Minutes</span>
+                </div>
+                @Html.ValidationMessageFor(model => model.TimeoutAfterMaxLoginReachedInMinutes, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.PasswordExpirationDurationInDays, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                <div class="input-group">
+                    @Html.EditorFor(model => model.PasswordExpirationDurationInDays, new { htmlAttributes = new { @class = "form-control" } })
+                    <span class="input-group-addon">Days</span>
+                </div>
+                @Html.ValidationMessageFor(model => model.PasswordExpirationDurationInDays, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.NumberOfPasswordToKeepInHistory, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.NumberOfPasswordToKeepInHistory, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.NumberOfPasswordToKeepInHistory, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
 
         <fieldset class="col-md-offset-3 col-md-9">
             <legend>Password Policy</legend>
@@ -40,7 +70,7 @@
                             @Html.EditorFor(model => model.PasswordShouldHaveUpperCase)
                             @Html.DisplayNameFor(model => model.PasswordShouldHaveUpperCase)
                         </label>
-                        @Html.ValidationMessageFor(model => model.PasswordShouldHaveUpperCase, "", new {@class = "text-danger"})
+                        @Html.ValidationMessageFor(model => model.PasswordShouldHaveUpperCase, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
@@ -51,7 +81,7 @@
                             @Html.EditorFor(model => model.PasswordShouldHaveLowerCase)
                             @Html.DisplayNameFor(model => model.PasswordShouldHaveLowerCase)
                         </label>
-                        @Html.ValidationMessageFor(model => model.PasswordShouldHaveLowerCase, "", new {@class = "text-danger"})
+                        @Html.ValidationMessageFor(model => model.PasswordShouldHaveLowerCase, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>
@@ -62,7 +92,7 @@
                             @Html.EditorFor(model => model.PasswordShouldHaveSpecialChars)
                             @Html.DisplayNameFor(model => model.PasswordShouldHaveSpecialChars)
                         </label>
-                        @Html.ValidationMessageFor(model => model.PasswordShouldHaveSpecialChars, "", new {@class = "text-danger"})
+                        @Html.ValidationMessageFor(model => model.PasswordShouldHaveSpecialChars, "", new { @class = "text-danger" })
                     </div>
                 </div>
             </div>

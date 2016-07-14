@@ -185,7 +185,7 @@
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Logger\LogManager.cs" />
-    <Compile Include="LoginAttemp.cs">
+    <Compile Include="LoginAttempt.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Model.Context.cs">
@@ -239,6 +239,7 @@
     <Content Include="Views\Account\Index.cshtml" />
     <None Include="Views\Admin\CreateUser.cshtml" />
     <None Include="Views\Home\Menu.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

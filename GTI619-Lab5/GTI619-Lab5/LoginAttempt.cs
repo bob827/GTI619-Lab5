@@ -12,12 +12,14 @@ namespace GTI619_Lab5
     using System;
     using System.Collections.Generic;
     
-    public partial class LoginAttemp
+    public partial class LoginAttempt
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public Nullable<int> UserId { get; set; }
         public System.DateTime Date { get; set; }
         public bool IsSuccessful { get; set; }
+        public string ClientIpAddress { get; set; }
+        public string ClientUserAgent { get; set; }
     
         public virtual User User { get; set; }
     }

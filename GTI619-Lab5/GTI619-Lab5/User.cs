@@ -18,9 +18,9 @@ namespace GTI619_Lab5
         public User()
         {
             this.AuthenticationTokens = new HashSet<AuthenticationToken>();
-            this.LoginAttemps = new HashSet<LoginAttemp>();
             this.PasswordHistories = new HashSet<PasswordHistory>();
             this.Roles = new HashSet<Role>();
+            this.LoginAttempts = new HashSet<LoginAttempt>();
         }
     
         public int Id { get; set; }
@@ -35,10 +35,10 @@ namespace GTI619_Lab5
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AuthenticationToken> AuthenticationTokens { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<LoginAttemp> LoginAttemps { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PasswordHistory> PasswordHistories { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Role> Roles { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<LoginAttempt> LoginAttempts { get; set; }
     }
 }

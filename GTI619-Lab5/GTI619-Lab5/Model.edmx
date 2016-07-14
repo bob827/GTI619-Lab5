@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Entities.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Entities.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AdminOptions">
           <Key>
             <PropertyRef Name="Id" />
@@ -28,14 +28,16 @@
           <Property Name="UserId" Type="int" Nullable="false" />
           <Property Name="ExpirationDate" Type="date" Nullable="false" />
         </EntityType>
-        <EntityType Name="LoginAttemps">
+        <EntityType Name="LoginAttempts">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="UserId" Type="int" />
           <Property Name="Date" Type="datetime" Nullable="false" />
           <Property Name="IsSuccessful" Type="bit" Nullable="false" />
+          <Property Name="ClientIpAddress" Type="nvarchar" MaxLength="15" />
+          <Property Name="ClientUserAgent" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="PasswordHistory">
           <Key>
@@ -86,14 +88,14 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_LoginAttemps_ToUser">
-          <End Role="Users" Type="Self.Users" Multiplicity="1" />
-          <End Role="LoginAttemps" Type="Self.LoginAttemps" Multiplicity="*" />
+        <Association Name="FK_LoginAttempts_ToUser">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="LoginAttempts" Type="Self.LoginAttempts" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
               <PropertyRef Name="Id" />
             </Principal>
-            <Dependent Role="LoginAttemps">
+            <Dependent Role="LoginAttempts">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -137,7 +139,7 @@
         <EntityContainer Name="EntitiesStoreContainer">
           <EntitySet Name="AdminOptions" EntityType="Self.AdminOptions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationTokens" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="LoginAttemps" EntityType="Self.LoginAttemps" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LoginAttempts" EntityType="Self.LoginAttempts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PasswordHistory" EntityType="Self.PasswordHistory" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="dbo" store:Type="Tables" />
@@ -146,9 +148,9 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="AuthenticationTokens" EntitySet="AuthenticationTokens" />
           </AssociationSet>
-          <AssociationSet Name="FK_LoginAttemps_ToUser" Association="Self.FK_LoginAttemps_ToUser">
+          <AssociationSet Name="FK_LoginAttempts_ToUser" Association="Self.FK_LoginAttempts_ToUser">
             <End Role="Users" EntitySet="Users" />
-            <End Role="LoginAttemps" EntitySet="LoginAttemps" />
+            <End Role="LoginAttempts" EntitySet="LoginAttempts" />
           </AssociationSet>
           <AssociationSet Name="FK_PasswordHistory_ToUsers" Association="Self.FK_PasswordHistory_ToUsers">
             <End Role="Users" EntitySet="Users" />
@@ -163,8 +165,7 @@
             <End Role="UserRoles" EntitySet="UserRoles" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Entities" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -191,16 +192,6 @@
           <Property Name="UserId" Type="Int32" Nullable="false" />
           <Property Name="ExpirationDate" Type="DateTime" Nullable="false" Precision="0" />
           <NavigationProperty Name="User" Relationship="Self.FK_AuthenticationTokens_ToUser" FromRole="AuthenticationTokens" ToRole="Users" />
-        </EntityType>
-        <EntityType Name="LoginAttemp">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="IsSuccessful" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="User" Relationship="Self.FK_LoginAttemps_ToUser" FromRole="LoginAttemps" ToRole="Users" />
         </EntityType>
         <EntityType Name="PasswordHistory">
           <Key>
@@ -233,9 +224,9 @@
           <Property Name="TimeoutEndDate" Type="DateTime" Precision="3" />
           <Property Name="PasswordExpirationDate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="AuthenticationTokens" Relationship="Self.FK_AuthenticationTokens_ToUser" FromRole="Users" ToRole="AuthenticationTokens" />
-          <NavigationProperty Name="LoginAttemps" Relationship="Self.FK_LoginAttemps_ToUser" FromRole="Users" ToRole="LoginAttemps" />
           <NavigationProperty Name="PasswordHistories" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="Users" ToRole="PasswordHistory" />
           <NavigationProperty Name="Roles" Relationship="Self.UserRoles" FromRole="Users" ToRole="Roles" />
+          <NavigationProperty Name="LoginAttempts" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="User" ToRole="LoginAttempt" />
         </EntityType>
         <Association Name="FK_AuthenticationTokens_ToUser">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
@@ -245,18 +236,6 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="AuthenticationTokens">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_LoginAttemps_ToUser">
-          <End Role="Users" Type="Self.User" Multiplicity="1" />
-          <End Role="LoginAttemps" Type="Self.LoginAttemp" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LoginAttemps">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -280,17 +259,12 @@
         <EntityContainer Name="DatabaseEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AdminOptions" EntityType="Self.AdminOption" />
           <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationToken" />
-          <EntitySet Name="LoginAttemps" EntityType="Self.LoginAttemp" />
           <EntitySet Name="PasswordHistories" EntityType="Self.PasswordHistory" />
           <EntitySet Name="Roles" EntityType="Self.Role" />
           <EntitySet Name="Users" EntityType="Self.User" />
           <AssociationSet Name="FK_AuthenticationTokens_ToUser" Association="Self.FK_AuthenticationTokens_ToUser">
             <End Role="Users" EntitySet="Users" />
             <End Role="AuthenticationTokens" EntitySet="AuthenticationTokens" />
-          </AssociationSet>
-          <AssociationSet Name="FK_LoginAttemps_ToUser" Association="Self.FK_LoginAttemps_ToUser">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="LoginAttemps" EntitySet="LoginAttemps" />
           </AssociationSet>
           <AssociationSet Name="FK_PasswordHistory_ToUsers" Association="Self.FK_PasswordHistory_ToUsers">
             <End Role="Users" EntitySet="Users" />
@@ -300,7 +274,36 @@
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Users" EntitySet="Users" />
           </AssociationSet>
+          <EntitySet Name="LoginAttempts" EntityType="Entities.LoginAttempt" />
+          <AssociationSet Name="FK_LoginAttempts_ToUser" Association="Entities.FK_LoginAttempts_ToUser">
+            <End Role="User" EntitySet="Users" />
+            <End Role="LoginAttempt" EntitySet="LoginAttempts" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="LoginAttempt">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsSuccessful" Type="Boolean" Nullable="false" />
+          <Property Name="ClientIpAddress" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="ClientUserAgent" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="User" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="LoginAttempt" ToRole="User" />
+        </EntityType>
+        <Association Name="FK_LoginAttempts_ToUser">
+          <End Type="Entities.User" Role="User" Multiplicity="0..1" />
+          <End Type="Entities.LoginAttempt" Role="LoginAttempt" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LoginAttempt">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -329,16 +332,6 @@
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="ExpirationDate" ColumnName="ExpirationDate" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="LoginAttemps">
-            <EntityTypeMapping TypeName="Entities.LoginAttemp">
-              <MappingFragment StoreEntitySet="LoginAttemps">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="Date" ColumnName="Date" />
-                <ScalarProperty Name="IsSuccessful" ColumnName="IsSuccessful" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -382,6 +375,18 @@
               <ScalarProperty Name="Id" ColumnName="UserId" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="LoginAttempts">
+            <EntityTypeMapping TypeName="Entities.LoginAttempt">
+              <MappingFragment StoreEntitySet="LoginAttempts">
+                <ScalarProperty Name="ClientUserAgent" ColumnName="ClientUserAgent" />
+                <ScalarProperty Name="ClientIpAddress" ColumnName="ClientIpAddress" />
+                <ScalarProperty Name="IsSuccessful" ColumnName="IsSuccessful" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

@@ -61,13 +61,13 @@ CREATE TABLE [dbo].[AuthenticationTokens] (
     CONSTRAINT [FK_AuthenticationTokens_ToUser] FOREIGN KEY ([UserId]) REFERENCES [Users]([Id])
 );
 
-CREATE TABLE [dbo].[LoginAttemps]
-(
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [UserId] INT NOT NULL, 
-    [Date] DATETIME NOT NULL, 
-    [IsSuccessful] BIT NOT NULL,
-    CONSTRAINT [FK_LoginAttemps_ToUser] FOREIGN KEY ([UserId]) REFERENCES [Users]([Id])
+CREATE TABLE [dbo].[LoginAttemps] (
+    [Id]           INT      IDENTITY (1, 1) NOT NULL,
+    [UserId]       INT      NULL,
+    [Date]         DATETIME NOT NULL,
+    [IsSuccessful] BIT      NOT NULL,
+    [ClientIpAddress] NVARCHAR(15) NULL, 
+    [ClientUserAgent] NVARCHAR(500) NULL, 
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_LoginAttemps_ToUser] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
 );
-
-

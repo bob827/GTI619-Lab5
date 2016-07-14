@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
 using GTI619_Lab5.Attributes;
 using GTI619_Lab5.Logger;
 using GTI619_Lab5.Models.Admin;
+using GTI619_Lab5.Utils;
 
 namespace GTI619_Lab5.Controllers
 {
-    //[RoleAccess("Admin"), RequireHttps]
+    [RoleAccess("Admin")/*, RequireHttps*/]
     public class AdminController : Controller
     {
         private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AdminController));
@@ -17,26 +15,37 @@ namespace GTI619_Lab5.Controllers
         // GET: Admin
         public ActionResult Index()
         {
-            var model = new IndexModel
+            using (var context = new DatabaseEntities())
             {
-                UserDictionary = new Dictionary<Guid, string> { { Guid.NewGuid(), "Username 1"}}
-            };
-            return View(model);
+                var userId = SessionManager.GetLoggedInUserId();
+                var users = context.Users.Where(user => user.Id != userId).ToList();
+                var model = new IndexModel
+                {
+                    UserDictionary = users.ToDictionary(k => k.Id, v => v.Username)
+                };
+                return View(model);
+            }
         }
 
-        public ActionResult ResetUserPassword(Guid id)
+        public ActionResult ResetUserPassword(int id)
         {
             s_logger.Info(string.Format("Reseting password of user {0}", id));
-            var model = new ResetUserPasswordModel
+            using (var context = new DatabaseEntities())
             {
-                UserId = id,
-                Username = "load this from the db"
-            };
-            return View(model);
+                var user = context.Users.Find(id);
+                if (user == null) return RedirectToAction("Index");
+
+                var model = new ResetUserPasswordModel
+                {
+                    UserId = id,
+                    Username = user.Username
+                };
+                return View(model);
+            }
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult ResetUserPassword(Guid id, ResetUserPasswordModel model)
+        public ActionResult ResetUserPassword(int id, ResetUserPasswordModel model)
         {
             s_logger.Info(string.Format("Reseting password of user {0}", id));
             if (!ModelState.IsValid)
@@ -44,28 +53,47 @@ namespace GTI619_Lab5.Controllers
                 model.AdminPassword = string.Empty;
                 return View(model);
             }
-            
-            // ValidatePassword()
+
+            using (var context = new DatabaseEntities())
+            {
+                var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
+
+                if (adminUser != null)
+                {
+                    if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
+                    {
+                        // todo reset the password of the user
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+
             ModelState.AddModelError("", "Admin Password is not valid.");
 
             model.AdminPassword = string.Empty;
             return View(model);
-            //PasswordGenerator.GenerateNewFor(id);
-            return RedirectToAction("Index");
         }
 
         public ActionResult GlobalSecuritySettings()
         {
-            var model = new GlobalSecuritySettingsModel
+            using (var context = new DatabaseEntities())
             {
-                MaxLoginAttempt = 5,
-                MinPasswordLength = 12,
-                PasswordShouldHaveLowerCase = true,
-                PasswordShouldHaveNumbers = true,
-                PasswordShouldHaveSpecialChars = true,
-                PasswordShouldHaveUpperCase = true
-            };
-            return View(model);
+                var options = context.AdminOptions.Single();
+
+                var model = new GlobalSecuritySettingsModel
+                {
+                    MinPasswordLength = options.MinPasswordLength,
+                    PasswordShouldHaveUpperCase = options.IsUpperCaseCharacterRequired,
+                    PasswordShouldHaveLowerCase = options.IsLowerCaseCharacterRequired,
+                    PasswordShouldHaveNumbers = options.IsNumberRequired,
+                    PasswordShouldHaveSpecialChars = options.IsSpecialCharacterRequired,
+                    MaxLoginAttempt = options.MaxLoginAttempt,
+                    TimeoutAfterMaxLoginReachedInMinutes = options.TimeoutAfterMaxLoginReachedInMinutes,
+                    PasswordExpirationDurationInDays = options.PasswordExpirationDurationInDays,
+                    NumberOfPasswordToKeepInHistory = options.NumberOfPasswordToKeepInHistory
+                };
+                return View(model);
+            }
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -77,7 +105,39 @@ namespace GTI619_Lab5.Controllers
                 model.AdminPassword = string.Empty;
                 return View(model);
             }
-            return View();
+
+
+            using (var context = new DatabaseEntities())
+            {
+                var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
+
+                if (adminUser != null)
+                {
+                    if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
+                    {
+                        var options = context.AdminOptions.Single();
+                        
+                        options.MinPasswordLength = model.MinPasswordLength;
+                        options.IsUpperCaseCharacterRequired = model.PasswordShouldHaveUpperCase;
+                        options.IsLowerCaseCharacterRequired = model.PasswordShouldHaveLowerCase;
+                        options.IsNumberRequired = model.PasswordShouldHaveNumbers;
+                        options.IsSpecialCharacterRequired = model.PasswordShouldHaveSpecialChars;
+                        options.MaxLoginAttempt = model.MaxLoginAttempt;
+                        options.TimeoutAfterMaxLoginReachedInMinutes = model.TimeoutAfterMaxLoginReachedInMinutes;
+                        options.PasswordExpirationDurationInDays = model.PasswordExpirationDurationInDays;
+                        options.NumberOfPasswordToKeepInHistory = model.NumberOfPasswordToKeepInHistory;
+
+                        context.SaveChanges();
+
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Admin Password is not valid.");
+
+            model.AdminPassword = string.Empty;
+            return View(model);
         }
 
         public ActionResult CreateUser()
@@ -95,7 +155,21 @@ namespace GTI619_Lab5.Controllers
                 model.AdminPassword = string.Empty;
                 return View(model);
             }
-            // ValidatePassword()
+
+            using (var context = new DatabaseEntities())
+            {
+                var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
+
+                if (adminUser != null)
+                {
+                    if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
+                    {
+                        // todo create the new user
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+
             ModelState.AddModelError("", "Admin Password is not valid.");
 
             model.AdminPassword = string.Empty;

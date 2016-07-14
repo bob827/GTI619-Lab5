@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using GTI619_Lab5.Utils;
@@ -27,8 +24,8 @@ namespace GTI619_Lab5.Attributes
 
             using (var context = new DatabaseEntities())
             {
-                var roles = context.GetUserRoles(userId);
-                if (roles.Contains("admin") || roles.Contains(Role)) return true;
+                if (context.IsUserAdmin(userId)) return true;
+                if (context.IsUserInRole(userId, Role)) return true;
             }
 
             return false;

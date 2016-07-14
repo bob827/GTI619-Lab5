@@ -28,5 +28,14 @@ namespace GTI619_Lab5.Models.Admin
 
         [Required, Display(Name = "Number")]
         public bool PasswordShouldHaveNumbers { get; set; }
+
+        [Required, Display(Name = "Timeout after login attempt limit reached")]
+        public int TimeoutAfterMaxLoginReachedInMinutes { get; set; }
+
+        [Required, Display(Name = "Password expires after")]
+        public int PasswordExpirationDurationInDays { get; set; }
+
+        [Required, Display(Name = "Number of password to keep in history")]
+        public int NumberOfPasswordToKeepInHistory { get; set; }
     }
 }

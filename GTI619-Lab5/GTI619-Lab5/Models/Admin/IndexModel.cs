@@ -7,6 +7,6 @@ namespace GTI619_Lab5.Models.Admin
 {
     public class IndexModel
     {
-        public Dictionary<Guid, string> UserDictionary { get; set; }
+        public Dictionary<int, string> UserDictionary { get; set; }
     }
 }
