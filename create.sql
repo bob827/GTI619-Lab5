@@ -19,19 +19,19 @@ CREATE TABLE [dbo].[Roles]
     CONSTRAINT [UK_Roles_RoleName] UNIQUE ([RoleName])
 );
 
-CREATE TABLE [dbo].[Users]
-(
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [Username] NVARCHAR(255) NOT NULL, 
-    [Email] NVARCHAR(255) NOT NULL, 
-    [PasswordHash] NVARCHAR(128) NOT NULL, 
-    [PasswordSalt] NVARCHAR(128) NOT NULL, 
-    [IsLocked] BIT NOT NULL, 
-    [TimeoutEndDate] DATETIME NULL, 
-    [PasswordExpirationDate] DATETIME NULL, 
-    CONSTRAINT [UK_Users_PasswordAndSalt] UNIQUE ([PasswordHash], [PasswordSalt]), 
-    CONSTRAINT [UK_Users_Username] UNIQUE ([Username]),
-    CONSTRAINT [UK_Users_Email] UNIQUE ([Email])
+CREATE TABLE [dbo].[Users] (
+    [Id]                     INT            IDENTITY (1, 1) NOT NULL,
+    [Username]               NVARCHAR (255) NOT NULL,
+    [Email]                  NVARCHAR (255) NOT NULL,
+    [PasswordHash]           NVARCHAR(64)    NOT NULL,
+    [PasswordSalt]           NVARCHAR (36)  NOT NULL,
+    [IsLocked]               BIT            NOT NULL,
+    [TimeoutEndDate]         DATETIME       NULL,
+    [PasswordExpirationDate] DATETIME       NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [UK_Users_Email] UNIQUE NONCLUSTERED ([Email] ASC),
+    CONSTRAINT [UK_Users_PasswordAndSalt] UNIQUE NONCLUSTERED ([PasswordHash] ASC, [PasswordSalt] ASC),
+    CONSTRAINT [UK_Users_Username] UNIQUE NONCLUSTERED ([Username] ASC)
 );
 
 CREATE TABLE [dbo].[UserRoles]
@@ -43,14 +43,14 @@ CREATE TABLE [dbo].[UserRoles]
     CONSTRAINT [FK_UserRoles_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [Users]([Id])
 );
 
-CREATE TABLE [dbo].[PasswordHistory]
-(
-	[Id] INT NOT NULL PRIMARY KEY  IDENTITY, 
-    [UserId] INT NOT NULL,
-    [PasswordHash] NVARCHAR(128) NOT NULL, 
-    [PasswordSalt] NVARCHAR(128) NOT NULL, 
-    CONSTRAINT [UK_PasswordHistory_PasswordAndSalt] UNIQUE ([PasswordHash], [PasswordSalt]),
-    CONSTRAINT [FK_PasswordHistory_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [Users]([Id])
+CREATE TABLE [dbo].[PasswordHistory] (
+    [Id]           INT           IDENTITY (1, 1) NOT NULL,
+    [UserId]       INT           NOT NULL,
+    [PasswordHash] NVARCHAR(64)   NOT NULL,
+    [PasswordSalt] NVARCHAR (36) NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [UK_PasswordHistory_PasswordAndSalt] UNIQUE NONCLUSTERED ([PasswordHash] ASC, [PasswordSalt] ASC),
+    CONSTRAINT [FK_PasswordHistory_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
 );
 
 CREATE TABLE [dbo].[AuthenticationTokens] (

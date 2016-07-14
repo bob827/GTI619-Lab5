@@ -9,7 +9,7 @@ using GTI619_Lab5.Models.Admin;
 
 namespace GTI619_Lab5.Controllers
 {
-    [RoleAccess("Admin"), RequireHttps]
+    //[RoleAccess("Admin"), RequireHttps]
     public class AdminController : Controller
     {
         private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AdminController));

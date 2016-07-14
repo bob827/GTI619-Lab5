@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GTI619_Lab5.Entities
+namespace GTI619_Lab5
 {
     using System;
     using System.Data.Entity;

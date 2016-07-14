@@ -7,16 +7,17 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GTI619_Lab5.Entities
+namespace GTI619_Lab5
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class AuthenticationToken
+    public partial class PasswordHistory
     {
-        public System.Guid Id { get; set; }
+        public int Id { get; set; }
         public int UserId { get; set; }
-        public System.DateTime ExpirationDate { get; set; }
+        public string PasswordHash { get; set; }
+        public string PasswordSalt { get; set; }
     
         public virtual User User { get; set; }
     }

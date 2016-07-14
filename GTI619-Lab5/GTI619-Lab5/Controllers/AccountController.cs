@@ -8,10 +8,11 @@ using System.Web.Mvc;
 using GTI619_Lab5.Attributes;
 using GTI619_Lab5.Logger;
 using GTI619_Lab5.Models.Account;
+using GTI619_Lab5.Utils;
 
 namespace GTI619_Lab5.Controllers
 {
-    [RequireHttps]
+    //[RequireHttps]
     public class AccountController : Controller
     {
         private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AccountController));
@@ -19,11 +20,14 @@ namespace GTI619_Lab5.Controllers
         // GET: Account
         public ActionResult Index()
         {
-            return RedirectToAction("Login");
+            if (!SessionManager.IsUserLoggedIn()) return RedirectToAction("Login");
+            
+            return View();
         }
 
         public ActionResult Login()
         {
+            if (SessionManager.IsUserLoggedIn()) return RedirectToAction("Index");
             return View();
         }
 
@@ -39,15 +43,30 @@ namespace GTI619_Lab5.Controllers
             }
 
             // try login
-            // todo on invalid login add to counter in db
+            using (var context = new DatabaseEntities())
+            {
+                var user = context.Users.FirstOrDefault(x => x.Username.Equals(model.Username));
+
+                if (user != null)
+                {
+                    if (user.PasswordHash.Equals(HashingUtil.SaltAndHash(model.Password, user.PasswordSalt)))
+                    {
+                        SessionManager.SetLoggedInUser(user);
+
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            
             ModelState.AddModelError("", "Invalid username or password.");
             model.Password = string.Empty;
             return View(model);
+        }
 
-            //if(userIsAdmin(userId) 
-            //    return RedirectToAction("Index", "Admin");
-
-            return RedirectToAction("Index", "Home");
+        public ActionResult Logout()
+        {
+            SessionManager.LogoutUser();
+            return RedirectToAction("Login");
         }
     }
 }

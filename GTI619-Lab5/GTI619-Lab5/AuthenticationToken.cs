@@ -7,17 +7,16 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GTI619_Lab5.Entities
+namespace GTI619_Lab5
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class LoginAttemp
+    public partial class AuthenticationToken
     {
-        public int Id { get; set; }
+        public System.Guid Id { get; set; }
         public int UserId { get; set; }
-        public System.DateTime Date { get; set; }
-        public bool IsSuccessful { get; set; }
+        public System.DateTime ExpirationDate { get; set; }
     
         public virtual User User { get; set; }
     }

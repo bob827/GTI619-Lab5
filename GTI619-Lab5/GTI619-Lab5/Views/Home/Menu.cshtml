@@ -1,0 +1,22 @@
+﻿@model GTI619_Lab5.Models.Home.MenuModel
+
+<ul class="nav navbar-nav">
+    @if (Model.IsAdmin)
+    {
+        <li><a href="@Url.Action("Index", "Admin")">Admin</a></li>
+    }
+    @if (Model.IsAdmin || Model.Roles.Contains("circle"))
+    {
+        <li><a href="@Url.Action("Index", "Circle")">Circle</a></li>
+    }
+    @if (Model.IsAdmin || Model.Roles.Contains("square"))
+    {
+        <li><a href="@Url.Action("Index", "Square")">Square</a></li>
+    }
+</ul>
+
+<ul class="nav navbar-nav navbar-right">
+    <li>
+        <a href="@Url.Action("Logout", "Account")">Logout</a>
+    </li>
+</ul>

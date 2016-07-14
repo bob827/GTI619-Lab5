@@ -1,4 +1,5 @@
 ﻿@using System.Web.Optimization
+@using GTI619_Lab5.Utils
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,7 +23,7 @@
                 @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav"></ul>
+                @{ Html.RenderAction("Menu", "Home"); }
             </div>
         </div>
     </div>

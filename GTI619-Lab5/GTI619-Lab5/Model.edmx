@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="DatabaseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="Entities.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AdminOptions">
           <Key>
             <PropertyRef Name="Id" />
@@ -43,8 +43,8 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="UserId" Type="int" Nullable="false" />
-          <Property Name="PasswordHash" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="PasswordSalt" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="64" Nullable="false" />
+          <Property Name="PasswordSalt" Type="nvarchar" MaxLength="36" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -68,8 +68,8 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Username" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="Email" Type="nvarchar" MaxLength="255" Nullable="false" />
-          <Property Name="PasswordHash" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="PasswordSalt" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="64" Nullable="false" />
+          <Property Name="PasswordSalt" Type="nvarchar" MaxLength="36" Nullable="false" />
           <Property Name="IsLocked" Type="bit" Nullable="false" />
           <Property Name="TimeoutEndDate" Type="datetime" />
           <Property Name="PasswordExpirationDate" Type="datetime" />
@@ -134,7 +134,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="DatabaseModelStoreContainer">
+        <EntityContainer Name="EntitiesStoreContainer">
           <EntitySet Name="AdminOptions" EntityType="Self.AdminOptions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationTokens" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LoginAttemps" EntityType="Self.LoginAttemps" Schema="dbo" store:Type="Tables" />
@@ -167,7 +167,7 @@
     </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="DatabaseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+      <Schema Namespace="Entities" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="AdminOption">
           <Key>
             <PropertyRef Name="Id" />
@@ -208,8 +208,8 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PasswordSalt" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="64" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordSalt" Type="String" MaxLength="36" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="User" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="PasswordHistory" ToRole="Users" />
         </EntityType>
         <EntityType Name="Role">
@@ -227,8 +227,8 @@
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PasswordSalt" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="64" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordSalt" Type="String" MaxLength="36" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="IsLocked" Type="Boolean" Nullable="false" />
           <Property Name="TimeoutEndDate" Type="DateTime" Precision="3" />
           <Property Name="PasswordExpirationDate" Type="DateTime" Precision="3" />
@@ -306,9 +306,9 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="DatabaseModelStoreContainer" CdmEntityContainer="DatabaseEntities">
+        <EntityContainerMapping StorageEntityContainer="EntitiesStoreContainer" CdmEntityContainer="DatabaseEntities">
           <EntitySetMapping Name="AdminOptions">
-            <EntityTypeMapping TypeName="DatabaseModel.AdminOption">
+            <EntityTypeMapping TypeName="Entities.AdminOption">
               <MappingFragment StoreEntitySet="AdminOptions">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="MinPasswordLength" ColumnName="MinPasswordLength" />
@@ -324,7 +324,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AuthenticationTokens">
-            <EntityTypeMapping TypeName="DatabaseModel.AuthenticationToken">
+            <EntityTypeMapping TypeName="Entities.AuthenticationToken">
               <MappingFragment StoreEntitySet="AuthenticationTokens">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -333,7 +333,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="LoginAttemps">
-            <EntityTypeMapping TypeName="DatabaseModel.LoginAttemp">
+            <EntityTypeMapping TypeName="Entities.LoginAttemp">
               <MappingFragment StoreEntitySet="LoginAttemps">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -343,7 +343,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="PasswordHistories">
-            <EntityTypeMapping TypeName="DatabaseModel.PasswordHistory">
+            <EntityTypeMapping TypeName="Entities.PasswordHistory">
               <MappingFragment StoreEntitySet="PasswordHistory">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -353,7 +353,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Roles">
-            <EntityTypeMapping TypeName="DatabaseModel.Role">
+            <EntityTypeMapping TypeName="Entities.Role">
               <MappingFragment StoreEntitySet="Roles">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="RoleName" ColumnName="RoleName" />
@@ -361,7 +361,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Users">
-            <EntityTypeMapping TypeName="DatabaseModel.User">
+            <EntityTypeMapping TypeName="Entities.User">
               <MappingFragment StoreEntitySet="Users">
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Username" ColumnName="Username" />
@@ -374,7 +374,7 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <AssociationSetMapping Name="UserRoles" TypeName="DatabaseModel.UserRoles" StoreEntitySet="UserRoles">
+          <AssociationSetMapping Name="UserRoles" TypeName="Entities.UserRoles" StoreEntitySet="UserRoles">
             <EndProperty Name="Roles">
               <ScalarProperty Name="Id" ColumnName="RoleId" />
             </EndProperty>
