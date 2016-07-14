@@ -105,8 +105,7 @@ namespace GTI619_Lab5.Controllers
                 model.AdminPassword = string.Empty;
                 return View(model);
             }
-
-
+            
             using (var context = new DatabaseEntities())
             {
                 var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
