@@ -36,7 +36,7 @@
           <Property Name="UserId" Type="int" />
           <Property Name="Date" Type="datetime" Nullable="false" />
           <Property Name="IsSuccessful" Type="bit" Nullable="false" />
-          <Property Name="ClientIpAddress" Type="nvarchar" MaxLength="15" />
+          <Property Name="ClientIpAddress" Type="nvarchar" MaxLength="45" />
           <Property Name="ClientUserAgent" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="PasswordHistory">
@@ -45,8 +45,9 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="UserId" Type="int" Nullable="false" />
-          <Property Name="PasswordHash" Type="nvarchar" MaxLength="64" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="88" Nullable="false" />
           <Property Name="PasswordSalt" Type="nvarchar" MaxLength="36" Nullable="false" />
+          <Property Name="DateChanged" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -70,11 +71,12 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Username" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="Email" Type="nvarchar" MaxLength="255" Nullable="false" />
-          <Property Name="PasswordHash" Type="nvarchar" MaxLength="64" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar" MaxLength="88" Nullable="false" />
           <Property Name="PasswordSalt" Type="nvarchar" MaxLength="36" Nullable="false" />
           <Property Name="IsLocked" Type="bit" Nullable="false" />
           <Property Name="TimeoutEndDate" Type="datetime" />
           <Property Name="PasswordExpirationDate" Type="datetime" />
+          <Property Name="MustChangePasswordAtNextLogon" Type="bit" Nullable="false" />
         </EntityType>
         <Association Name="FK_AuthenticationTokens_ToUser">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
@@ -199,9 +201,10 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" MaxLength="64" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="88" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="PasswordSalt" Type="String" MaxLength="36" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="User" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="PasswordHistory" ToRole="Users" />
+          <Property Name="DateChanged" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
         <EntityType Name="Role">
           <Key>
@@ -218,7 +221,7 @@
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" MaxLength="64" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="88" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="PasswordSalt" Type="String" MaxLength="36" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="IsLocked" Type="Boolean" Nullable="false" />
           <Property Name="TimeoutEndDate" Type="DateTime" Precision="3" />
@@ -227,6 +230,7 @@
           <NavigationProperty Name="PasswordHistories" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="Users" ToRole="PasswordHistory" />
           <NavigationProperty Name="Roles" Relationship="Self.UserRoles" FromRole="Users" ToRole="Roles" />
           <NavigationProperty Name="LoginAttempts" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="User" ToRole="LoginAttempt" />
+          <Property Name="MustChangePasswordAtNextLogon" Type="Boolean" Nullable="false" />
         </EntityType>
         <Association Name="FK_AuthenticationTokens_ToUser">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
@@ -288,7 +292,7 @@
           <Property Name="UserId" Type="Int32" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsSuccessful" Type="Boolean" Nullable="false" />
-          <Property Name="ClientIpAddress" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="ClientIpAddress" Type="String" MaxLength="45" FixedLength="false" Unicode="true" />
           <Property Name="ClientUserAgent" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="User" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="LoginAttempt" ToRole="User" />
         </EntityType>
@@ -338,6 +342,7 @@
           <EntitySetMapping Name="PasswordHistories">
             <EntityTypeMapping TypeName="Entities.PasswordHistory">
               <MappingFragment StoreEntitySet="PasswordHistory">
+                <ScalarProperty Name="DateChanged" ColumnName="DateChanged" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
@@ -356,6 +361,7 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="Entities.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="MustChangePasswordAtNextLogon" ColumnName="MustChangePasswordAtNextLogon" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Username" ColumnName="Username" />
                 <ScalarProperty Name="Email" ColumnName="Email" />

@@ -20,7 +20,12 @@ namespace GTI619_Lab5.Controllers
         public ActionResult Index()
         {
             if (!SessionManager.IsUserLoggedIn()) return RedirectToAction("Login");
-            
+
+            if (TempData["message"] != null)
+            {
+                ViewBag.Message = TempData["message"];
+            }
+
             return View();
         }
 
@@ -30,8 +35,7 @@ namespace GTI619_Lab5.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Login(LoginModel model)
         {
             s_logger.Debug(string.Format("Login attempt with user {0}", model.Username));
@@ -44,9 +48,9 @@ namespace GTI619_Lab5.Controllers
             // try login
             using (var context = new DatabaseEntities())
             {
+
                 try
                 {
-
                     var loginAttempt = new LoginAttempt
                     {
                         Date = DateTime.Now,
@@ -67,7 +71,7 @@ namespace GTI619_Lab5.Controllers
                     if (user != null)
                     {
                         loginAttempt.UserId = user.Id;
-                        
+
                         if (context.IsMaxLoginAttemptReachedForUserId(user.Id))
                         {
                             ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
@@ -93,6 +97,12 @@ namespace GTI619_Lab5.Controllers
                         {
                             loginAttempt.IsSuccessful = true;
 
+                            if (user.HasToChangePassword())
+                            {
+                                TempData["userId"] = user.Id;
+                                return RedirectToAction("ChangePassword");
+                            }
+
                             SessionManager.SetLoggedInUser(user);
 
                             return RedirectToAction("Index");
@@ -104,7 +114,7 @@ namespace GTI619_Lab5.Controllers
                     context.SaveChanges();
                 }
             }
-            
+
             ModelState.AddModelError("", "Invalid username or password.");
             model.Password = string.Empty;
             return View(model);
@@ -114,6 +124,121 @@ namespace GTI619_Lab5.Controllers
         {
             SessionManager.LogoutUser();
             return RedirectToAction("Login");
+        }
+
+        public ActionResult ChangePassword()
+        {
+            var userId = (int?)TempData["userId"];
+            if (!userId.HasValue)
+            {
+                if(!SessionManager.IsUserLoggedIn()) return RedirectToAction("Login");
+                userId = SessionManager.GetLoggedInUserId();
+            }
+            return View(new ChangePasswordModel(userId.Value));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePasswordModel model)
+        {
+            s_logger.Debug(string.Format("Change password (userid={0})", model.UserId));
+
+            if (!ModelState.IsValid)
+            {
+                return View(new ChangePasswordModel(model.UserId));
+            }
+
+            if (!model.NewPassword1.Equals(model.NewPassword2))
+            {
+                ModelState.AddModelError("", "The 2 password are not equal.");
+                return View(new ChangePasswordModel(model.UserId));
+            }
+
+            if (model.OldPassword.Equals(model.NewPassword1))
+            {
+                ModelState.AddModelError("", "The old and new password cannot be the same.");
+                return View(new ChangePasswordModel(model.UserId));
+            }
+
+            using (var context = new DatabaseEntities())
+            {
+                var user = context.Users.Find(model.UserId);
+
+                if (user == null)
+                {
+                    // user was not found, we disconnect the user that is logged in
+                    SessionManager.LogoutUser();
+                    return RedirectToAction("Login");
+                }
+
+                if (SessionManager.IsUserLoggedIn())
+                {
+                    // user tried to change the password of another user
+                    if (SessionManager.GetLoggedInUserId() != user.Id)
+                    {
+                        ModelState.AddModelError("", "An error occured, please try again.");
+                        return View(new ChangePasswordModel(SessionManager.GetLoggedInUserId()));
+                    }
+                }
+                else
+                {
+                    // if the user does not have to change password, we redirect him to the login form
+                    if (!user.HasToChangePassword())
+                    {
+                        return RedirectToAction("Login");
+                    }
+                }
+
+                var options = context.AdminOptions.Single();
+                var passwordHistory = context.PasswordHistories
+                    .Where(x => x.UserId == model.UserId)
+                    .OrderByDescending(x => x.DateChanged)
+                    .Take(options.NumberOfPasswordToKeepInHistory)
+                    .ToList();
+
+                if (!PasswordValidator.Validate(model.NewPassword1, options, passwordHistory))
+                {
+                    ModelState.AddModelError("", string.Format("Password must be {0} characters long.", options.MinPasswordLength));
+                    if(options.IsLowerCaseCharacterRequired)
+                        ModelState.AddModelError("", "Password must contain at least one lower case character");
+                    if (options.IsUpperCaseCharacterRequired)
+                        ModelState.AddModelError("", "Password must contain at least one upper case character");
+                    if (options.IsNumberRequired)
+                        ModelState.AddModelError("", "Password must contain at least one number");
+                    if (options.IsSpecialCharacterRequired)
+                        ModelState.AddModelError("", "Password must contain at least one special character");
+                    ModelState.AddModelError("", string.Format("Password cannot be the same as one of the {0} last.", options.NumberOfPasswordToKeepInHistory));
+
+                    return View(new ChangePasswordModel(model.UserId));
+                }
+
+                if (user.PasswordHash.Equals(HashingUtil.SaltAndHash(model.OldPassword, user.PasswordSalt)))
+                {
+                    var history = new PasswordHistory
+                    {
+                        DateChanged = DateTime.Now,
+                        PasswordSalt = user.PasswordSalt,
+                        PasswordHash = user.PasswordHash,
+                        UserId = model.UserId
+                    };
+                    context.PasswordHistories.Add(history);
+
+                    var newSalt = Guid.NewGuid().ToString();
+
+                    user.PasswordHash = HashingUtil.SaltAndHash(model.NewPassword1, newSalt);
+                    user.PasswordSalt = newSalt;
+                    user.MustChangePasswordAtNextLogon = false;
+                    user.PasswordExpirationDate = DateTime.Now.AddDays(options.PasswordExpirationDurationInDays);
+
+                    context.SaveChanges();
+
+                    TempData["message"] = "Password changed!";
+
+                    return RedirectToAction("Index");
+                }
+            }
+
+            ModelState.AddModelError("", "The old password is not valid.");
+            return View(new ChangePasswordModel(model.UserId));
         }
     }
 }

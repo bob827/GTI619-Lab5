@@ -128,7 +128,9 @@ namespace GTI619_Lab5.Controllers
 
                         context.SaveChanges();
 
-                        return RedirectToAction("Index");
+                        TempData["message"] = "Options changed!";
+
+                        return RedirectToAction("Index", "Account");
                     }
                 }
             }
@@ -145,7 +147,7 @@ namespace GTI619_Lab5.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, ValidateAntiForgeryToken]
         public ActionResult CreateUser(CreateUserModel model)
         {
             s_logger.Info("Creating a new user");

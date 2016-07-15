@@ -179,6 +179,7 @@
     <Compile Include="Controllers\CircleController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SquareController.cs" />
+    <Compile Include="Entities\User.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -203,6 +204,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Model.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\Account\ChangePasswordModel.cs" />
     <Compile Include="Models\Account\LoginModel.cs" />
     <Compile Include="Models\Admin\CreateUserModel.cs" />
     <Compile Include="Models\Admin\GlobalSecuritySettingsModel.cs" />
@@ -221,6 +223,7 @@
     </Compile>
     <Compile Include="Utils\DatabaseEntities.cs" />
     <Compile Include="Utils\HashingUtil.cs" />
+    <Compile Include="Utils\PasswordValidator.cs" />
     <Compile Include="Utils\SessionManager.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +240,7 @@
     <Content Include="Views\Admin\ResetUserPassword.cshtml" />
     <Content Include="Views\Admin\GlobalSecuritySettings.cshtml" />
     <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
     <None Include="Views\Admin\CreateUser.cshtml" />
     <None Include="Views\Home\Menu.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
