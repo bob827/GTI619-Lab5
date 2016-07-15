@@ -10,7 +10,7 @@ using GTI619_Lab5.Utils;
 
 namespace GTI619_Lab5.Controllers
 {
-    [RoleAccess("Admin")/*, RequireHttps*/]
+    [RoleAccess("Admin"), RequireHttps]
     public class AdminController : Controller
     {
         private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AdminController));
@@ -33,6 +33,81 @@ namespace GTI619_Lab5.Controllers
             }
         }
 
+        public ActionResult EditUserRoles(int id)
+        {
+            using (var context = new DatabaseEntities())
+            {
+                var user = context.Users.Find(id);
+                if (user == null) return RedirectToAction("Index");
+
+                var model = new EditUserRolesModel
+                {
+                    UserId = id,
+                    Username = user.Username,
+                    AvailableRoles = context.Roles.ToDictionary(k => k.Id, v => v.RoleName),
+                    SelectedRoleIds = user.Roles.Select(x => x.Id).ToList()
+                };
+                return View(model);
+            }
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult EditUserRoles(int id, EditUserRolesModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.AdminPassword = string.Empty;
+                return View(model);
+            }
+
+            if (id != model.UserId)
+            {
+                return RedirectToAction("EditUserRoles", new {id});
+            }
+
+            using (var context = new DatabaseEntities())
+            {
+                var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
+
+                if (adminUser != null)
+                {
+                    if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
+                    {
+                        var user = context.Users.Find(model.UserId);
+                        var selectedRoles = context.Roles.Where(r => model.SelectedRoleIds.Contains(r.Id)).ToList();
+
+                        var userRoles = user.Roles.ToList();
+
+                        foreach (var role in userRoles)
+                        {
+                            if (!selectedRoles.Contains(role))
+                                user.Roles.Remove(role);
+                        }
+
+                        foreach (var selectedRole in selectedRoles)
+                        {
+                            if(!user.Roles.Any(x=>x.Id.Equals(selectedRole.Id)))
+                                user.Roles.Add(selectedRole);
+                        }
+
+                        context.SaveChanges();
+                        s_logger.Info(string.Format("Roles of user {0}({1}) were changed by user {2}({3})",
+                            user.Username, user.Id, adminUser.Username, adminUser.Id));
+
+                        // il faudrait probablement envoyer le password au user par courriel
+                        TempData["message"] = "Roles were changed.";
+
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Admin Password is not valid.");
+
+            model.AdminPassword = string.Empty;
+            return View(model);
+        }
+
         public ActionResult ResetUserPassword(int id)
         {
             using (var context = new DatabaseEntities())
@@ -52,11 +127,15 @@ namespace GTI619_Lab5.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult ResetUserPassword(int id, ResetUserPasswordModel model)
         {
-            s_logger.Info(string.Format("Reseting password of user {0}", id));
             if (!ModelState.IsValid)
             {
                 model.AdminPassword = string.Empty;
                 return View(model);
+            }
+
+            if (id != model.UserId)
+            {
+                return RedirectToAction("ResetUserPassword", new { id });
             }
 
             using (var context = new DatabaseEntities())
@@ -75,6 +154,11 @@ namespace GTI619_Lab5.Controllers
                         user.PasswordSalt = newSalt;
                         user.MustChangePasswordAtNextLogon = true;
                         user.DefaultPasswordValidUntil = DateTime.Now.AddHours(1);
+                        user.IsLocked = false;
+                        user.TimeoutEndDate = null;
+
+                        s_logger.Info(string.Format("Password of user {0}({1}) was reset by user {2}({3})",
+                            user.Username, user.Id, adminUser.Username, adminUser.Id));
 
                         // il faudrait probablement envoyer le password au user par courriel
                         TempData["message"] = string.Format("User password was changed to: {0}", password);
@@ -144,6 +228,9 @@ namespace GTI619_Lab5.Controllers
 
                         context.SaveChanges();
 
+                        s_logger.Info(string.Format("Security options were changed by user {0}({1})",
+                            adminUser.Username, adminUser.Id));
+
                         TempData["message"] = "Options changed!";
 
                         return RedirectToAction("Index", "Account");
@@ -195,7 +282,10 @@ namespace GTI619_Lab5.Controllers
                         };
                         context.Users.Add(user);
                         context.SaveChanges();
-                        
+
+                        s_logger.Info(string.Format("User {0}({1}) was created by user {2}({3})",
+                            user.Username, user.Id, adminUser.Username, adminUser.Id));
+
                         // il faudrait probablement envoyer le password au user par courriel
                         TempData["message"] = string.Format("User was created with the password: {0}", password);
 
@@ -245,6 +335,11 @@ namespace GTI619_Lab5.Controllers
                 return View(model);
             }
 
+            if (id != model.UserId)
+            {
+                return RedirectToAction("DeleteUser", new { id });
+            }
+
             using (var context = new DatabaseEntities())
             {
                 var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
@@ -270,7 +365,10 @@ namespace GTI619_Lab5.Controllers
                         context.Entry(user).State = EntityState.Deleted;
 
                         context.SaveChanges();
-                        
+
+                        s_logger.Info(string.Format("User {0}({1}) was deleted by user {2}({3})",
+                            user.Username, user.Id, adminUser.Username, adminUser.Id));
+
                         TempData["message"] = string.Format("User {0} was deleted.", user.Username);
 
                         return RedirectToAction("Index");

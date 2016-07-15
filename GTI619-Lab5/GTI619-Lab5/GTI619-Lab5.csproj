@@ -157,6 +157,7 @@
     <Content Include="Model.edmx.diagram">
       <DependentUpon>Model.edmx</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\publish.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery-2.2.4.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.4.js" />
@@ -171,9 +172,6 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Attributes\RoleAccessAttribute.cs" />
-    <Compile Include="AuthenticationToken.cs">
-      <DependentUpon>Model.tt</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\CircleController.cs" />
@@ -207,6 +205,7 @@
     <Compile Include="Models\Account\ChangePasswordModel.cs" />
     <Compile Include="Models\Account\LoginModel.cs" />
     <Compile Include="Models\Admin\CreateUserModel.cs" />
+    <Compile Include="Models\Admin\EditUserRolesModel.cs" />
     <Compile Include="Models\Admin\GlobalSecuritySettingsModel.cs" />
     <Compile Include="Models\Admin\IndexModel.cs" />
     <Compile Include="Models\Admin\ResetUserPasswordModel.cs" />
@@ -236,7 +235,6 @@
     <Content Include="Scripts\jquery-2.2.4.min.map" />
     <Content Include="Views\Circle\Index.cshtml" />
     <Content Include="Views\Square\Index.cshtml" />
-    <Content Include="Views\Account\View.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\ResetUserPassword.cshtml" />
     <Content Include="Views\Admin\GlobalSecuritySettings.cshtml" />
@@ -244,6 +242,7 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <None Include="Views\Admin\CreateUser.cshtml" />
     <Content Include="Views\Admin\DeleteUser.cshtml" />
+    <Content Include="Views\Admin\EditUserRoles.cshtml" />
     <None Include="Views\Home\Menu.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <None Include="Web.Debug.config">

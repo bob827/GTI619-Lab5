@@ -56,14 +56,6 @@ CREATE TABLE [dbo].[PasswordHistory] (
     CONSTRAINT [FK_PasswordHistory_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
 );
 
-CREATE TABLE [dbo].[AuthenticationTokens] (
-    [Id]             UNIQUEIDENTIFIER NOT NULL,
-    [UserId]         INT              NOT NULL,
-    [ExpirationDate] DATE             NOT NULL,
-    PRIMARY KEY CLUSTERED ([Id] ASC), 
-    CONSTRAINT [FK_AuthenticationTokens_ToUser] FOREIGN KEY ([UserId]) REFERENCES [Users]([Id])
-);
-
 CREATE TABLE [dbo].[LoginAttemps] (
     [Id]           INT      IDENTITY (1, 1) NOT NULL,
     [UserId]       INT      NULL,

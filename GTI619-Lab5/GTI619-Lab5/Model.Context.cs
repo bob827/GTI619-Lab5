@@ -26,7 +26,6 @@ namespace GTI619_Lab5
         }
     
         public virtual DbSet<AdminOption> AdminOptions { get; set; }
-        public virtual DbSet<AuthenticationToken> AuthenticationTokens { get; set; }
         public virtual DbSet<PasswordHistory> PasswordHistories { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<User> Users { get; set; }

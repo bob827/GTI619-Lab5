@@ -17,7 +17,6 @@ namespace GTI619_Lab5
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
-            this.AuthenticationTokens = new HashSet<AuthenticationToken>();
             this.PasswordHistories = new HashSet<PasswordHistory>();
             this.Roles = new HashSet<Role>();
             this.LoginAttempts = new HashSet<LoginAttempt>();
@@ -34,8 +33,6 @@ namespace GTI619_Lab5
         public bool MustChangePasswordAtNextLogon { get; set; }
         public Nullable<System.DateTime> DefaultPasswordValidUntil { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AuthenticationToken> AuthenticationTokens { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PasswordHistory> PasswordHistories { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

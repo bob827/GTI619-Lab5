@@ -5,7 +5,7 @@ using GTI619_Lab5.Utils;
 
 namespace GTI619_Lab5.Controllers
 {
-    //[RequireHttps]
+    [RequireHttps]
     public class HomeController : Controller
     {
         private static readonly ILogger s_logger = LogManager.GetLogger(typeof(HomeController));

@@ -35,8 +35,17 @@
                     @user.Value
                 </td>
                 <td>
-                    @Html.ActionLink("Reset Password", "ResetUserPassword", new { id = user.Key }, new { @class = "btn btn-default btn-sm" })
-                    @Html.ActionLink("Delete Account", "DeleteUser", new { id = user.Key }, new { @class = "btn btn-danger btn-sm" })
+                    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                        <a href="@Url.Action("EditUserRoles", new {id = user.Key})" class="btn btn-default btn-sm">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                            Edit User Roles
+                        </a>
+                        @Html.ActionLink("Reset Password", "ResetUserPassword", new { id = user.Key }, new { @class = "btn btn-default btn-sm" })
+                        <a href="@Url.Action("DeleteUser", new {id = user.Key})" class="btn btn-danger btn-sm">
+                            <span class="glyphicon glyphicon-trash"></span>
+                            Delete
+                        </a>
+                    </div>
                 </td>
             </tr>
         }

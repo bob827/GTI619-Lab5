@@ -11,7 +11,7 @@ using GTI619_Lab5.Utils;
 
 namespace GTI619_Lab5.Controllers
 {
-    //[RequireHttps]
+    [RequireHttps]
     public class AccountController : Controller
     {
         private static readonly ILogger s_logger = LogManager.GetLogger(typeof(AccountController));
@@ -38,7 +38,6 @@ namespace GTI619_Lab5.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Login(LoginModel model)
         {
-            s_logger.Debug(string.Format("Login attempt with user {0}", model.Username));
             if (!ModelState.IsValid)
             {
                 model.Password = string.Empty;
@@ -60,6 +59,7 @@ namespace GTI619_Lab5.Controllers
 
                     if (context.IsMaxLoginAttemptReachedForIp(loginAttempt.ClientIpAddress))
                     {
+                        s_logger.Warn(string.Format("Max login attempts was reached by IP {0}", loginAttempt.ClientIpAddress));
                         ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                         model.Password = string.Empty;
                         return View(model);
@@ -73,6 +73,7 @@ namespace GTI619_Lab5.Controllers
 
                         if (user.DefaultPasswordValidUntil.HasValue && DateTime.Now > user.DefaultPasswordValidUntil.Value)
                         {
+                            s_logger.Info(string.Format("Login refused for user {0}({1}): default password has expired", user.Username, user.Id));
                             ModelState.AddModelError("", "Your password is no longer valid. Please contact an administrator to reset your password.");
                             model.Password = string.Empty;
                             return View(model);
@@ -80,6 +81,7 @@ namespace GTI619_Lab5.Controllers
 
                         if (user.IsLocked)
                         {
+                            s_logger.Info(string.Format("Login refused for user {0}({1}): account is locked", user.Username, user.Id));
                             ModelState.AddModelError("", "Account is locked. Please contact an administrator to unlock the account.");
                             model.Password = string.Empty;
                             return View(model);
@@ -87,6 +89,7 @@ namespace GTI619_Lab5.Controllers
 
                         if (user.TimeoutEndDate.HasValue && DateTime.Now < user.TimeoutEndDate)
                         {
+                            s_logger.Info(string.Format("Login refused for user {0}({1}): accout is timedout", user.Username, user.Id));
                             ModelState.AddModelError("", "Account is timed out");
                             model.Password = string.Empty;
                             return View(model);
@@ -94,6 +97,7 @@ namespace GTI619_Lab5.Controllers
 
                         if (context.IsMaxLoginAttemptReachedForUserId(user.Id))
                         {
+                            s_logger.Info(string.Format("Login refused for user {0}({1}): the maximum unsuccessful attempt reached", user.Username, user.Id));
                             ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                             model.Password = string.Empty;
                             return View(model);
@@ -105,12 +109,14 @@ namespace GTI619_Lab5.Controllers
 
                             if (user.HasToChangePassword())
                             {
+                                s_logger.Info(string.Format("Login valid {0}({1}): user has to change password", user.Username, user.Id));
                                 TempData["userId"] = user.Id;
                                 return RedirectToAction("ChangePassword");
                             }
 
                             SessionManager.SetLoggedInUser(user);
 
+                            s_logger.Info(string.Format("Login valid {0}({1})", user.Username, user.Id));
                             return RedirectToAction("Index");
                         }
                     }
@@ -146,8 +152,6 @@ namespace GTI619_Lab5.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult ChangePassword(ChangePasswordModel model)
         {
-            s_logger.Debug(string.Format("Change password (userid={0})", model.UserId));
-            
             if (!ModelState.IsValid)
             {
                 return View(new ChangePasswordModel(model.UserId));
@@ -238,7 +242,8 @@ namespace GTI619_Lab5.Controllers
                     user.DefaultPasswordValidUntil = null;
 
                     context.SaveChanges();
-                    
+
+                    s_logger.Info(string.Format("User {0}({1}) changed his password", user.Username, user.Id));
                     SessionManager.SetLoggedInUser(user);
                     TempData["message"] = "Password changed!";
 

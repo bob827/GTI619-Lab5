@@ -24,8 +24,11 @@
                 </div>
             </div>
 
-            <input type="submit" value="Delete" class="btn btn-danger"/> |
-            @Html.ActionLink("Back to List", "Index")
+            <input type="submit" value="Delete" class="btn btn-danger"/>
+            <a href="@Url.Action("Index")" class="btn btn-default">
+                <span class="glyphicon glyphicon-arrow-left"></span>
+                Back to List
+            </a>
         </div>
     }
 </div>

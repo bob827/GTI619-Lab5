@@ -20,14 +20,6 @@
           <Property Name="PasswordExpirationDurationInDays" Type="int" Nullable="false" />
           <Property Name="NumberOfPasswordToKeepInHistory" Type="int" Nullable="false" />
         </EntityType>
-        <EntityType Name="AuthenticationTokens">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="UserId" Type="int" Nullable="false" />
-          <Property Name="ExpirationDate" Type="date" Nullable="false" />
-        </EntityType>
         <EntityType Name="LoginAttempts">
           <Key>
             <PropertyRef Name="Id" />
@@ -79,18 +71,6 @@
           <Property Name="MustChangePasswordAtNextLogon" Type="bit" Nullable="false" />
           <Property Name="DefaultPasswordValidUntil" Type="datetime" />
         </EntityType>
-        <Association Name="FK_AuthenticationTokens_ToUser">
-          <End Role="Users" Type="Self.Users" Multiplicity="1" />
-          <End Role="AuthenticationTokens" Type="Self.AuthenticationTokens" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AuthenticationTokens">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_LoginAttempts_ToUser">
           <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
           <End Role="LoginAttempts" Type="Self.LoginAttempts" Multiplicity="*" />
@@ -141,16 +121,11 @@
         </Association>
         <EntityContainer Name="EntitiesStoreContainer">
           <EntitySet Name="AdminOptions" EntityType="Self.AdminOptions" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationTokens" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LoginAttempts" EntityType="Self.LoginAttempts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PasswordHistory" EntityType="Self.PasswordHistory" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK_AuthenticationTokens_ToUser" Association="Self.FK_AuthenticationTokens_ToUser">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="AuthenticationTokens" EntitySet="AuthenticationTokens" />
-          </AssociationSet>
           <AssociationSet Name="FK_LoginAttempts_ToUser" Association="Self.FK_LoginAttempts_ToUser">
             <End Role="Users" EntitySet="Users" />
             <End Role="LoginAttempts" EntitySet="LoginAttempts" />
@@ -187,15 +162,6 @@
           <Property Name="PasswordExpirationDurationInDays" Type="Int32" Nullable="false" />
           <Property Name="NumberOfPasswordToKeepInHistory" Type="Int32" Nullable="false" />
         </EntityType>
-        <EntityType Name="AuthenticationToken">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Guid" Nullable="false" />
-          <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="ExpirationDate" Type="DateTime" Nullable="false" Precision="0" />
-          <NavigationProperty Name="User" Relationship="Self.FK_AuthenticationTokens_ToUser" FromRole="AuthenticationTokens" ToRole="Users" />
-        </EntityType>
         <EntityType Name="PasswordHistory">
           <Key>
             <PropertyRef Name="Id" />
@@ -227,25 +193,12 @@
           <Property Name="IsLocked" Type="Boolean" Nullable="false" />
           <Property Name="TimeoutEndDate" Type="DateTime" Precision="3" />
           <Property Name="PasswordExpirationDate" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="AuthenticationTokens" Relationship="Self.FK_AuthenticationTokens_ToUser" FromRole="Users" ToRole="AuthenticationTokens" />
           <NavigationProperty Name="PasswordHistories" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="Users" ToRole="PasswordHistory" />
           <NavigationProperty Name="Roles" Relationship="Self.UserRoles" FromRole="Users" ToRole="Roles" />
           <NavigationProperty Name="LoginAttempts" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="User" ToRole="LoginAttempt" />
           <Property Name="MustChangePasswordAtNextLogon" Type="Boolean" Nullable="false" />
           <Property Name="DefaultPasswordValidUntil" Type="DateTime" Precision="3" />
         </EntityType>
-        <Association Name="FK_AuthenticationTokens_ToUser">
-          <End Role="Users" Type="Self.User" Multiplicity="1" />
-          <End Role="AuthenticationTokens" Type="Self.AuthenticationToken" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Users">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AuthenticationTokens">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_PasswordHistory_ToUsers">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
           <End Role="PasswordHistory" Type="Self.PasswordHistory" Multiplicity="*" />
@@ -264,14 +217,9 @@
         </Association>
         <EntityContainer Name="DatabaseEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AdminOptions" EntityType="Self.AdminOption" />
-          <EntitySet Name="AuthenticationTokens" EntityType="Self.AuthenticationToken" />
           <EntitySet Name="PasswordHistories" EntityType="Self.PasswordHistory" />
           <EntitySet Name="Roles" EntityType="Self.Role" />
           <EntitySet Name="Users" EntityType="Self.User" />
-          <AssociationSet Name="FK_AuthenticationTokens_ToUser" Association="Self.FK_AuthenticationTokens_ToUser">
-            <End Role="Users" EntitySet="Users" />
-            <End Role="AuthenticationTokens" EntitySet="AuthenticationTokens" />
-          </AssociationSet>
           <AssociationSet Name="FK_PasswordHistory_ToUsers" Association="Self.FK_PasswordHistory_ToUsers">
             <End Role="Users" EntitySet="Users" />
             <End Role="PasswordHistory" EntitySet="PasswordHistories" />
@@ -329,15 +277,6 @@
                 <ScalarProperty Name="TimeoutAfterMaxLoginReachedInMinutes" ColumnName="TimeoutAfterMaxLoginReachedInMinutes" />
                 <ScalarProperty Name="PasswordExpirationDurationInDays" ColumnName="PasswordExpirationDurationInDays" />
                 <ScalarProperty Name="NumberOfPasswordToKeepInHistory" ColumnName="NumberOfPasswordToKeepInHistory" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="AuthenticationTokens">
-            <EntityTypeMapping TypeName="Entities.AuthenticationToken">
-              <MappingFragment StoreEntitySet="AuthenticationTokens">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="ExpirationDate" ColumnName="ExpirationDate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
