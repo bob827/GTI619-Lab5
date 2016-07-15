@@ -11,6 +11,7 @@ CREATE TABLE [dbo].[AdminOptions]
     [PasswordExpirationDurationInDays] INT NOT NULL, 
     [NumberOfPasswordToKeepInHistory] INT NOT NULL
 );
+GO;
 
 CREATE TABLE [dbo].[Roles]
 (
@@ -18,6 +19,7 @@ CREATE TABLE [dbo].[Roles]
     [RoleName] NVARCHAR(255) NOT NULL, 
     CONSTRAINT [UK_Roles_RoleName] UNIQUE ([RoleName])
 );
+GO;
 
 CREATE TABLE [dbo].[Users] (
     [Id]                            INT            IDENTITY (1, 1) NOT NULL,
@@ -35,6 +37,7 @@ CREATE TABLE [dbo].[Users] (
     CONSTRAINT [UK_Users_Username] UNIQUE NONCLUSTERED ([Username] ASC),
     CONSTRAINT [UK_Users_Email] UNIQUE NONCLUSTERED ([Email] ASC)
 );
+GO;
 
 CREATE TABLE [dbo].[UserRoles]
 (
@@ -44,6 +47,7 @@ CREATE TABLE [dbo].[UserRoles]
     CONSTRAINT [FK_UserRoles_ToRoles] FOREIGN KEY ([RoleId]) REFERENCES [Roles]([Id]),
     CONSTRAINT [FK_UserRoles_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [Users]([Id])
 );
+GO;
 
 CREATE TABLE [dbo].[PasswordHistory] (
     [Id]           INT           IDENTITY (1, 1) NOT NULL,
@@ -55,14 +59,17 @@ CREATE TABLE [dbo].[PasswordHistory] (
     CONSTRAINT [UK_PasswordHistory_PasswordAndSalt] UNIQUE NONCLUSTERED ([PasswordHash] ASC, [PasswordSalt] ASC),
     CONSTRAINT [FK_PasswordHistory_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
 );
+GO;
 
-CREATE TABLE [dbo].[LoginAttemps] (
-    [Id]           INT      IDENTITY (1, 1) NOT NULL,
-    [UserId]       INT      NULL,
-    [Date]         DATETIME NOT NULL,
-    [IsSuccessful] BIT      NOT NULL,
-    [ClientIpAddress] NVARCHAR(15) NULL, 
-    [ClientUserAgent] NVARCHAR(500) NULL, 
+CREATE TABLE [dbo].[LoginAttempts] (
+    [Id]              INT            IDENTITY (1, 1) NOT NULL,
+    [UserId]          INT            NULL,
+    [Date]            DATETIME       NOT NULL,
+    [IsSuccessful]    BIT            NOT NULL,
+    [ClientIpAddress] NVARCHAR (45)  NULL,
+    [ClientUserAgent] NVARCHAR (500) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_LoginAttemps_ToUser] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
+    CONSTRAINT [FK_LoginAttempts_ToUser] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
 );
+GO;
+
