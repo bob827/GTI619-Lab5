@@ -77,6 +77,7 @@
           <Property Name="TimeoutEndDate" Type="datetime" />
           <Property Name="PasswordExpirationDate" Type="datetime" />
           <Property Name="MustChangePasswordAtNextLogon" Type="bit" Nullable="false" />
+          <Property Name="DefaultPasswordValidUntil" Type="datetime" />
         </EntityType>
         <Association Name="FK_AuthenticationTokens_ToUser">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
@@ -231,6 +232,7 @@
           <NavigationProperty Name="Roles" Relationship="Self.UserRoles" FromRole="Users" ToRole="Roles" />
           <NavigationProperty Name="LoginAttempts" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="User" ToRole="LoginAttempt" />
           <Property Name="MustChangePasswordAtNextLogon" Type="Boolean" Nullable="false" />
+          <Property Name="DefaultPasswordValidUntil" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_AuthenticationTokens_ToUser">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
@@ -361,6 +363,7 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="Entities.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="DefaultPasswordValidUntil" ColumnName="DefaultPasswordValidUntil" />
                 <ScalarProperty Name="MustChangePasswordAtNextLogon" ColumnName="MustChangePasswordAtNextLogon" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Username" ColumnName="Username" />

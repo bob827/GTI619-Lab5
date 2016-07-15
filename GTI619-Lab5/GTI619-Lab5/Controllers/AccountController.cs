@@ -48,7 +48,6 @@ namespace GTI619_Lab5.Controllers
             // try login
             using (var context = new DatabaseEntities())
             {
-
                 try
                 {
                     var loginAttempt = new LoginAttempt
@@ -72,9 +71,16 @@ namespace GTI619_Lab5.Controllers
                     {
                         loginAttempt.UserId = user.Id;
 
-                        if (context.IsMaxLoginAttemptReachedForUserId(user.Id))
+                        if (user.DefaultPasswordValidUntil.HasValue && DateTime.Now > user.DefaultPasswordValidUntil.Value)
                         {
-                            ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
+                            ModelState.AddModelError("", "Your password is no longer valid. Please contact an administrator to reset your password.");
+                            model.Password = string.Empty;
+                            return View(model);
+                        }
+
+                        if (user.IsLocked)
+                        {
+                            ModelState.AddModelError("", "Account is locked. Please contact an administrator to unlock the account.");
                             model.Password = string.Empty;
                             return View(model);
                         }
@@ -86,9 +92,9 @@ namespace GTI619_Lab5.Controllers
                             return View(model);
                         }
 
-                        if (user.IsLocked)
+                        if (context.IsMaxLoginAttemptReachedForUserId(user.Id))
                         {
-                            ModelState.AddModelError("", "Account is locked. Please contact an administrator to unlock the account.");
+                            ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                             model.Password = string.Empty;
                             return View(model);
                         }
@@ -141,7 +147,7 @@ namespace GTI619_Lab5.Controllers
         public ActionResult ChangePassword(ChangePasswordModel model)
         {
             s_logger.Debug(string.Format("Change password (userid={0})", model.UserId));
-
+            
             if (!ModelState.IsValid)
             {
                 return View(new ChangePasswordModel(model.UserId));
@@ -181,7 +187,8 @@ namespace GTI619_Lab5.Controllers
                 }
                 else
                 {
-                    // if the user does not have to change password, we redirect him to the login form
+                    // user is not logged in and he does not have to change password
+                    // he should not be here
                     if (!user.HasToChangePassword())
                     {
                         return RedirectToAction("Login");
@@ -228,9 +235,11 @@ namespace GTI619_Lab5.Controllers
                     user.PasswordSalt = newSalt;
                     user.MustChangePasswordAtNextLogon = false;
                     user.PasswordExpirationDate = DateTime.Now.AddDays(options.PasswordExpirationDurationInDays);
+                    user.DefaultPasswordValidUntil = null;
 
                     context.SaveChanges();
-
+                    
+                    SessionManager.SetLoggedInUser(user);
                     TempData["message"] = "Password changed!";
 
                     return RedirectToAction("Index");

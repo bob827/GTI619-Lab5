@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Data.Entity;
+using System.Linq;
 using System.Web.Mvc;
+using System.Web.Security;
 using GTI619_Lab5.Attributes;
 using GTI619_Lab5.Logger;
 using GTI619_Lab5.Models.Admin;
@@ -15,6 +18,9 @@ namespace GTI619_Lab5.Controllers
         // GET: Admin
         public ActionResult Index()
         {
+            if (TempData["message"] != null)
+                ViewBag.Message = TempData["message"];
+
             using (var context = new DatabaseEntities())
             {
                 var userId = SessionManager.GetLoggedInUserId();
@@ -29,7 +35,6 @@ namespace GTI619_Lab5.Controllers
 
         public ActionResult ResetUserPassword(int id)
         {
-            s_logger.Info(string.Format("Reseting password of user {0}", id));
             using (var context = new DatabaseEntities())
             {
                 var user = context.Users.Find(id);
@@ -62,7 +67,18 @@ namespace GTI619_Lab5.Controllers
                 {
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
-                        // todo reset the password of the user
+                        var options = context.AdminOptions.Single();
+                        var user = context.Users.Find(model.UserId);
+                        var password = Membership.GeneratePassword(options.MinPasswordLength, options.IsSpecialCharacterRequired ? 1 : 0);
+                        var newSalt = Guid.NewGuid().ToString();
+                        user.PasswordHash = HashingUtil.SaltAndHash(password, newSalt);
+                        user.PasswordSalt = newSalt;
+                        user.MustChangePasswordAtNextLogon = true;
+                        user.DefaultPasswordValidUntil = DateTime.Now.AddHours(1);
+
+                        // il faudrait probablement envoyer le password au user par courriel
+                        TempData["message"] = string.Format("User password was changed to: {0}", password);
+
                         return RedirectToAction("Index");
                     }
                 }
@@ -165,7 +181,98 @@ namespace GTI619_Lab5.Controllers
                 {
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
-                        // todo create the new user
+                        var options = context.AdminOptions.Single();
+                        var password = Membership.GeneratePassword(options.MinPasswordLength, options.IsSpecialCharacterRequired ? 1 : 0);
+                        var salt = Guid.NewGuid().ToString();
+                        var user = new User
+                        {
+                            Username = model.Username,
+                            Email = model.Email,
+                            PasswordHash = HashingUtil.SaltAndHash(password, salt),
+                            PasswordSalt = salt,
+                            MustChangePasswordAtNextLogon = true,
+                            DefaultPasswordValidUntil = DateTime.Now.AddHours(1)
+                        };
+                        context.Users.Add(user);
+                        context.SaveChanges();
+                        
+                        // il faudrait probablement envoyer le password au user par courriel
+                        TempData["message"] = string.Format("User was created with the password: {0}", password);
+
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Admin Password is not valid.");
+
+            model.AdminPassword = string.Empty;
+            return View(model);
+        }
+        public ActionResult DeleteUser(int id)
+        {
+            if (SessionManager.GetLoggedInUserId() == id)
+            {
+                return RedirectToAction("Index");
+            }
+
+            using (var context = new DatabaseEntities())
+            {
+                var user = context.Users.Find(id);
+                if (user == null) return RedirectToAction("Index");
+
+                var model = new DeleteUserModel
+                {
+                    UserId = id,
+                    Username = user.Username
+                };
+                return View(model);
+            }
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult DeleteUser(int id, DeleteUserModel model)
+        {
+            if (SessionManager.GetLoggedInUserId() == id)
+            {
+                return RedirectToAction("Index");
+            }
+
+            s_logger.Info(string.Format("Deleting user {0}", id));
+            if (!ModelState.IsValid)
+            {
+                model.AdminPassword = string.Empty;
+                return View(model);
+            }
+
+            using (var context = new DatabaseEntities())
+            {
+                var adminUser = context.Users.Find(SessionManager.GetLoggedInUserId());
+
+                if (adminUser != null)
+                {
+                    if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
+                    {
+                        var user = context.Users.Find(model.UserId);
+
+                        foreach (var passHistory in context.PasswordHistories.Where(x=>x.UserId == user.Id))
+                        {
+                            context.Entry(passHistory).State = EntityState.Deleted;
+                        }
+                        foreach (var loginAttempt in context.LoginAttempts.Where(x => x.UserId == user.Id))
+                        {
+                            loginAttempt.UserId = null;
+                        }
+                        foreach (var role in user.Roles)
+                        {
+                            role.Users.Remove(user);
+                        }
+                        context.Entry(user).State = EntityState.Deleted;
+
+                        context.SaveChanges();
+                        
+                        TempData["message"] = string.Format("User {0} was deleted.", user.Username);
+
                         return RedirectToAction("Index");
                     }
                 }

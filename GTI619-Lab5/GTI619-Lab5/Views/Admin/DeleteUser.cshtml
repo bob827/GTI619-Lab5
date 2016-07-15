@@ -1,0 +1,31 @@
+﻿@model GTI619_Lab5.Models.Admin.DeleteUserModel
+
+@{
+    ViewBag.Title = "Delete User";
+}
+
+<h2>Delete User</h2>
+
+<h3>Are you sure you want to delete the user: @Html.DisplayFor(model => model.Username)?</h3>
+<div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        
+        <div class="form-horizontal form-actions no-color">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+
+                @Html.LabelFor(model => model.AdminPassword, htmlAttributes: new {@class = "control-label col-md-2"})
+                <div class="col-md-10">
+                    @Html.PasswordFor(model => model.AdminPassword, new {@class = "form-control"})
+                    @Html.ValidationMessageFor(model => model.AdminPassword, "", new {@class = "text-danger"})
+                </div>
+            </div>
+
+            <input type="submit" value="Delete" class="btn btn-danger"/> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

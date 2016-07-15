@@ -32,6 +32,7 @@ namespace GTI619_Lab5
         public Nullable<System.DateTime> TimeoutEndDate { get; set; }
         public Nullable<System.DateTime> PasswordExpirationDate { get; set; }
         public bool MustChangePasswordAtNextLogon { get; set; }
+        public Nullable<System.DateTime> DefaultPasswordValidUntil { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AuthenticationToken> AuthenticationTokens { get; set; }

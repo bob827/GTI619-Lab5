@@ -29,9 +29,10 @@ CREATE TABLE [dbo].[Users] (
     [TimeoutEndDate]                DATETIME       NULL,
     [PasswordExpirationDate]        DATETIME       NULL,
     [MustChangePasswordAtNextLogon] BIT            DEFAULT ((0)) NOT NULL,
+    [DefaultPasswordValidUntil] DATETIME NULL, 
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [UK_Users_Username] UNIQUE NONCLUSTERED ([Username] ASC),
     CONSTRAINT [UK_Users_PasswordAndSalt] UNIQUE NONCLUSTERED ([PasswordHash] ASC, [PasswordSalt] ASC),
+    CONSTRAINT [UK_Users_Username] UNIQUE NONCLUSTERED ([Username] ASC),
     CONSTRAINT [UK_Users_Email] UNIQUE NONCLUSTERED ([Email] ASC)
 );
 
