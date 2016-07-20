@@ -16,8 +16,10 @@ INSERT INTO [dbo].[Users] ([Email]
 VALUES('test@test.com', 0, 'BqPuISzor2MSmmoheGLo5Wr+Tps1VZ2OHfzc3ll0n2Gj4EArJtDWRHm6/vDUOpu9fc2Al91urB5GNbgzabahaw==', 'ca1587f1-4eea-4f41-aad5-4f95bb8f9ae9', 'admin')
 GO
 
-INSERT INTO [dbo].[UserRoles] ([UserId], [RoleId])
-VALUES (1, 1)
+INSERT INTO [dbo].[UserRoles]([RoleId], [UserId])
+SELECT r.[Id], u.[Id]
+FROM [dbo].[Roles] r, [dbo].[Users] u
+WHERE r.RoleName = 'admin' and u.[Username] = 'admin'
 GO
 
 INSERT INTO [dbo].[AdminOptions] ([IsLowerCaseCharacterRequired]
