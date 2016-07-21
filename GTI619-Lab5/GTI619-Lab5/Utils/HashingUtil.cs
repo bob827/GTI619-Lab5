@@ -6,13 +6,13 @@ namespace GTI619_Lab5.Utils
 {
     public static class HashingUtil
     {
-        //public const string DefaultSalt = "df2d3cea-38f8-43ff-8abf-399bd3408124";
+        public static string Version { get { return "SHA512"; } }
 
         public static string SaltAndHash(string data, string salt)
         {
             return Convert.ToBase64String(Hash(ApplySalt(data, salt)));
         }
-        
+
         private const int MIN_SALTED_LENGTH = 1000;
         private const int NUMBER_HASH_OF_ITERATION = 25;
 

@@ -40,6 +40,7 @@
           <Property Name="PasswordHash" Type="nvarchar" MaxLength="88" Nullable="false" />
           <Property Name="PasswordSalt" Type="nvarchar" MaxLength="36" Nullable="false" />
           <Property Name="DateChanged" Type="datetime" Nullable="false" />
+          <Property Name="HashingVersion" Type="nvarchar" MaxLength="10" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -70,6 +71,7 @@
           <Property Name="PasswordExpirationDate" Type="datetime" />
           <Property Name="MustChangePasswordAtNextLogon" Type="bit" Nullable="false" />
           <Property Name="DefaultPasswordValidUntil" Type="datetime" />
+          <Property Name="HashingVersion" Type="nvarchar" MaxLength="10" Nullable="false" />
         </EntityType>
         <Association Name="FK_LoginAttempts_ToUser">
           <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
@@ -172,6 +174,7 @@
           <Property Name="PasswordSalt" Type="String" MaxLength="36" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="User" Relationship="Self.FK_PasswordHistory_ToUsers" FromRole="PasswordHistory" ToRole="Users" />
           <Property Name="DateChanged" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="HashingVersion" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Role">
           <Key>
@@ -198,6 +201,7 @@
           <NavigationProperty Name="LoginAttempts" Relationship="Entities.FK_LoginAttempts_ToUser" FromRole="User" ToRole="LoginAttempt" />
           <Property Name="MustChangePasswordAtNextLogon" Type="Boolean" Nullable="false" />
           <Property Name="DefaultPasswordValidUntil" Type="DateTime" Precision="3" />
+          <Property Name="HashingVersion" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_PasswordHistory_ToUsers">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
@@ -283,6 +287,7 @@
           <EntitySetMapping Name="PasswordHistories">
             <EntityTypeMapping TypeName="Entities.PasswordHistory">
               <MappingFragment StoreEntitySet="PasswordHistory">
+                <ScalarProperty Name="HashingVersion" ColumnName="HashingVersion" />
                 <ScalarProperty Name="DateChanged" ColumnName="DateChanged" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
@@ -302,6 +307,7 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="Entities.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="HashingVersion" ColumnName="HashingVersion" />
                 <ScalarProperty Name="DefaultPasswordValidUntil" ColumnName="DefaultPasswordValidUntil" />
                 <ScalarProperty Name="MustChangePasswordAtNextLogon" ColumnName="MustChangePasswordAtNextLogon" />
                 <ScalarProperty Name="Id" ColumnName="Id" />

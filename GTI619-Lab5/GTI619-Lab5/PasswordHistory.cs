@@ -19,6 +19,7 @@ namespace GTI619_Lab5
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public System.DateTime DateChanged { get; set; }
+        public string HashingVersion { get; set; }
     
         public virtual User User { get; set; }
     }

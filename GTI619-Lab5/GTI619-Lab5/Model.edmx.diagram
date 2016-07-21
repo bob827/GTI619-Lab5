@@ -11,7 +11,7 @@
         <EntityTypeShape EntityType="Entities.User" Width="1.5" PointX="3" PointY="3.125" IsExpanded="true" />
         <AssociationConnector Association="Entities.FK_PasswordHistory_ToUsers" ManuallyRouted="false" />
         <AssociationConnector Association="Entities.UserRoles" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="Entities.LoginAttempt" Width="1.5" PointX="3" PointY="7.25" />
+        <EntityTypeShape EntityType="Entities.LoginAttempt" Width="1.5" PointX="3" PointY="7.75" />
         <AssociationConnector Association="Entities.FK_LoginAttempts_ToUser" />
       </Diagram>
     </edmx:Diagrams>

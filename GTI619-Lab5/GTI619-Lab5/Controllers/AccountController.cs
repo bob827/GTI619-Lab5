@@ -229,7 +229,8 @@ namespace GTI619_Lab5.Controllers
                         DateChanged = DateTime.Now,
                         PasswordSalt = user.PasswordSalt,
                         PasswordHash = user.PasswordHash,
-                        UserId = model.UserId
+                        UserId = model.UserId,
+                        HashingVersion = user.HashingVersion
                     };
                     context.PasswordHistories.Add(history);
 
@@ -240,6 +241,7 @@ namespace GTI619_Lab5.Controllers
                     user.MustChangePasswordAtNextLogon = false;
                     user.PasswordExpirationDate = DateTime.Now.AddDays(options.PasswordExpirationDurationInDays);
                     user.DefaultPasswordValidUntil = null;
+                    user.HashingVersion = HashingUtil.Version;
 
                     context.SaveChanges();
 

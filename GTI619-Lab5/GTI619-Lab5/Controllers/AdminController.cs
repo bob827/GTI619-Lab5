@@ -148,6 +148,18 @@ namespace GTI619_Lab5.Controllers
                     {
                         var options = context.AdminOptions.Single();
                         var user = context.Users.Find(model.UserId);
+
+                        // ajouter le password dans le history
+                        var history = new PasswordHistory
+                        {
+                            DateChanged = DateTime.Now,
+                            PasswordSalt = user.PasswordSalt,
+                            PasswordHash = user.PasswordHash,
+                            UserId = model.UserId,
+                            HashingVersion = user.HashingVersion
+                        };
+                        context.PasswordHistories.Add(history);
+
                         var password = Membership.GeneratePassword(options.MinPasswordLength, options.IsSpecialCharacterRequired ? 1 : 0);
                         var newSalt = Guid.NewGuid().ToString();
                         user.PasswordHash = HashingUtil.SaltAndHash(password, newSalt);
@@ -156,6 +168,7 @@ namespace GTI619_Lab5.Controllers
                         user.DefaultPasswordValidUntil = DateTime.Now.AddHours(1);
                         user.IsLocked = false;
                         user.TimeoutEndDate = null;
+                        user.HashingVersion = HashingUtil.Version;
 
                         s_logger.Info(string.Format("Password of user {0}({1}) was reset by user {2}({3})",
                             user.Username, user.Id, adminUser.Username, adminUser.Id));
@@ -278,7 +291,8 @@ namespace GTI619_Lab5.Controllers
                             PasswordHash = HashingUtil.SaltAndHash(password, salt),
                             PasswordSalt = salt,
                             MustChangePasswordAtNextLogon = true,
-                            DefaultPasswordValidUntil = DateTime.Now.AddHours(1)
+                            DefaultPasswordValidUntil = DateTime.Now.AddHours(1),
+                            HashingVersion = HashingUtil.Version
                         };
                         context.Users.Add(user);
                         context.SaveChanges();

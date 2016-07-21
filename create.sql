@@ -32,6 +32,7 @@ CREATE TABLE [dbo].[Users] (
     [PasswordExpirationDate]        DATETIME       NULL,
     [MustChangePasswordAtNextLogon] BIT            DEFAULT ((0)) NOT NULL,
     [DefaultPasswordValidUntil] DATETIME NULL, 
+    [HashingVersion] NVARCHAR(10) NOT NULL, 
     PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [UK_Users_PasswordAndSalt] UNIQUE NONCLUSTERED ([PasswordHash] ASC, [PasswordSalt] ASC),
     CONSTRAINT [UK_Users_Username] UNIQUE NONCLUSTERED ([Username] ASC),
@@ -55,6 +56,7 @@ CREATE TABLE [dbo].[PasswordHistory] (
     [PasswordHash] NVARCHAR (88) NOT NULL,
     [PasswordSalt] NVARCHAR (36) NOT NULL,
     [DateChanged]  DATETIME      NOT NULL,
+    [HashingVersion] NVARCHAR(10) NOT NULL, 
     PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [UK_PasswordHistory_PasswordAndSalt] UNIQUE NONCLUSTERED ([PasswordHash] ASC, [PasswordSalt] ASC),
     CONSTRAINT [FK_PasswordHistory_ToUsers] FOREIGN KEY ([UserId]) REFERENCES [dbo].[Users] ([Id])
