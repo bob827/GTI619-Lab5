@@ -24,6 +24,7 @@ namespace GTI619_Lab5.Controllers
             using (var context = new DatabaseEntities())
             {
                 var userId = SessionManager.GetLoggedInUserId();
+                // va cherche la liste des utilisateurs sauf celui du compte courrant
                 var users = context.Users.Where(user => user.Id != userId).ToList();
                 var model = new IndexModel
                 {
@@ -60,6 +61,7 @@ namespace GTI619_Lab5.Controllers
                 return View(model);
             }
 
+            // le id dans le page et celui du url sont different
             if (id != model.UserId)
             {
                 return RedirectToAction("EditUserRoles", new {id});
@@ -71,6 +73,7 @@ namespace GTI619_Lab5.Controllers
 
                 if (adminUser != null)
                 {
+                    // valide le mot de passe de l'administrateur
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
                         var user = context.Users.Find(model.UserId);
@@ -78,18 +81,21 @@ namespace GTI619_Lab5.Controllers
 
                         var userRoles = user.Roles.ToList();
 
+                        // enleve les anciens roles de l'utilisateur
                         foreach (var role in userRoles)
                         {
                             if (!selectedRoles.Contains(role))
                                 user.Roles.Remove(role);
                         }
 
+                        // ajout les nouveaux roles
                         foreach (var selectedRole in selectedRoles)
                         {
                             if(!user.Roles.Any(x=>x.Id.Equals(selectedRole.Id)))
                                 user.Roles.Add(selectedRole);
                         }
 
+                        // sauvegarde
                         context.SaveChanges();
                         s_logger.Info(string.Format("Roles of user {0}({1}) were changed by user {2}({3})",
                             user.Username, user.Id, adminUser.Username, adminUser.Id));
@@ -144,6 +150,7 @@ namespace GTI619_Lab5.Controllers
 
                 if (adminUser != null)
                 {
+                    // valide le mot de passe de l'administrateur
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
                         var options = context.AdminOptions.Single();
@@ -160,6 +167,7 @@ namespace GTI619_Lab5.Controllers
                         };
                         context.PasswordHistories.Add(history);
 
+                        // genere un nouveau mot de passe
                         var password = Membership.GeneratePassword(options.MinPasswordLength, options.IsSpecialCharacterRequired ? 1 : 0);
                         var newSalt = Guid.NewGuid().ToString();
                         user.PasswordHash = HashingUtil.SaltAndHash(password, newSalt);
@@ -172,8 +180,7 @@ namespace GTI619_Lab5.Controllers
 
                         s_logger.Info(string.Format("Password of user {0}({1}) was reset by user {2}({3})",
                             user.Username, user.Id, adminUser.Username, adminUser.Id));
-
-                        // il faudrait probablement envoyer le password au user par courriel
+                        
                         TempData["message"] = string.Format("User password was changed to: {0}", password);
 
                         return RedirectToAction("Index");
@@ -225,6 +232,7 @@ namespace GTI619_Lab5.Controllers
 
                 if (adminUser != null)
                 {
+                    // valide le mot de passe de l'administrateur
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
                         var options = context.AdminOptions.Single();
@@ -239,6 +247,7 @@ namespace GTI619_Lab5.Controllers
                         options.PasswordExpirationDurationInDays = model.PasswordExpirationDurationInDays;
                         options.NumberOfPasswordToKeepInHistory = model.NumberOfPasswordToKeepInHistory;
 
+                        // sauvegarde dans la BD
                         context.SaveChanges();
 
                         s_logger.Info(string.Format("Security options were changed by user {0}({1})",
@@ -279,11 +288,15 @@ namespace GTI619_Lab5.Controllers
 
                 if (adminUser != null)
                 {
+                    // valide le mot de passe de l'administrateur
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
                         var options = context.AdminOptions.Single();
+                        // genere un nouveau mot de passe
                         var password = Membership.GeneratePassword(options.MinPasswordLength, options.IsSpecialCharacterRequired ? 1 : 0);
+                        // genere un nouvea salt
                         var salt = Guid.NewGuid().ToString();
+
                         var user = new User
                         {
                             Username = model.Username,
@@ -295,13 +308,14 @@ namespace GTI619_Lab5.Controllers
                             HashingVersion = HashingUtil.Version,
                             GridCardSeed = GridCardUtil.GenerateSeed()
                         };
+
+                        // ajoute l'utilisateur dans la BD
                         context.Users.Add(user);
                         context.SaveChanges();
 
                         s_logger.Info(string.Format("User {0}({1}) was created by user {2}({3})",
                             user.Username, user.Id, adminUser.Username, adminUser.Id));
-
-                        // il faudrait probablement envoyer le password au user par courriel
+                        
                         TempData["message"] = string.Format("User was created with the password: {0}", password);
 
                         return RedirectToAction("Index");
@@ -361,16 +375,18 @@ namespace GTI619_Lab5.Controllers
 
                 if (adminUser != null)
                 {
+                    // valide le mot de passe de l'administrateur
                     if (adminUser.PasswordHash.Equals(HashingUtil.SaltAndHash(model.AdminPassword, adminUser.PasswordSalt)))
                     {
                         var user = context.Users.Find(model.UserId);
-
+                        // supprime tout ce qui relie a l'utilisateur
                         foreach (var passHistory in context.PasswordHistories.Where(x=>x.UserId == user.Id))
                         {
                             context.Entry(passHistory).State = EntityState.Deleted;
                         }
                         foreach (var loginAttempt in context.LoginAttempts.Where(x => x.UserId == user.Id))
                         {
+                            // on garde les tentative de connexion dans la bd, on fait juste mettre le user id a null
                             loginAttempt.UserId = null;
                         }
                         foreach (var role in user.Roles)
@@ -379,6 +395,7 @@ namespace GTI619_Lab5.Controllers
                         }
                         context.Entry(user).State = EntityState.Deleted;
 
+                        // sauvegarde dans la BD
                         context.SaveChanges();
 
                         s_logger.Info(string.Format("User {0}({1}) was deleted by user {2}({3})",
@@ -399,6 +416,7 @@ namespace GTI619_Lab5.Controllers
 
         public ActionResult ShowGridCard(int id)
         {
+            // affiche la grid card d'un utilisateur
             using (var context = new DatabaseEntities())
             {
                 var user = context.Users.Find(id);

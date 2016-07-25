@@ -47,6 +47,7 @@ namespace GTI619_Lab5.Controllers
             var r = new Random();
             if (!ModelState.IsValid)
             {
+                // il y a des erreurs dans le modele
                 model.Password = string.Empty;
                 model.GridCardValue = 0;
                 model.GridCardCol = r.Next(GridCardUtil.GridSize);
@@ -67,6 +68,7 @@ namespace GTI619_Lab5.Controllers
                     };
                     context.LoginAttempts.Add(loginAttempt);
 
+                    // validation si adresse ip a atteint la limite de tentative
                     if (context.IsMaxLoginAttemptReachedForIp(loginAttempt.ClientIpAddress))
                     {
                         s_logger.Warn(string.Format("Max login attempts was reached by IP {0}", loginAttempt.ClientIpAddress));
@@ -78,12 +80,14 @@ namespace GTI619_Lab5.Controllers
                         return View(model);
                     }
 
+                    // va chercher le user dans BD
                     var user = context.Users.FirstOrDefault(x => x.Username.Equals(model.Username));
 
                     if (user != null)
                     {
                         loginAttempt.UserId = user.Id;
 
+                        // validation si le mot de passe est toujours valide
                         if (user.DefaultPasswordValidUntil.HasValue && DateTime.Now > user.DefaultPasswordValidUntil.Value)
                         {
                             s_logger.Info(string.Format("Login refused for user {0}({1}): default password has expired", user.Username, user.Id));
@@ -95,6 +99,7 @@ namespace GTI619_Lab5.Controllers
                             return View(model);
                         }
 
+                        // validation si le compte est verouille
                         if (user.IsLocked)
                         {
                             s_logger.Info(string.Format("Login refused for user {0}({1}): account is locked", user.Username, user.Id));
@@ -106,6 +111,7 @@ namespace GTI619_Lab5.Controllers
                             return View(model);
                         }
 
+                        // validation si l'utilisateur a recu un timeout
                         if (user.TimeoutEndDate.HasValue && DateTime.Now < user.TimeoutEndDate)
                         {
                             s_logger.Info(string.Format("Login refused for user {0}({1}): accout is timedout", user.Username, user.Id));
@@ -117,6 +123,7 @@ namespace GTI619_Lab5.Controllers
                             return View(model);
                         }
 
+                        // validation si l'utilisateur a atteint la limite de tentative
                         if (context.IsMaxLoginAttemptReachedForUserId(user.Id))
                         {
                             s_logger.Info(string.Format("Login refused for user {0}({1}): the maximum unsuccessful attempt reached", user.Username, user.Id));
@@ -128,6 +135,7 @@ namespace GTI619_Lab5.Controllers
                             return View(model);
                         }
 
+                        // validation si le mot de passe correspond a celui de la BD
                         if (!user.PasswordHash.Equals(HashingUtil.SaltAndHash(model.Password, user.PasswordSalt)))
                         {
                             s_logger.Info(string.Format("Login refused for user {0}({1}): invalid password", user.Username, user.Id));
@@ -138,7 +146,8 @@ namespace GTI619_Lab5.Controllers
                             model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
-
+                        
+                        // validation de la valeur de la grid gard
                         if (!GridCardUtil.IsValid(model.GridCardValue, user.GridCardSeed, model.GridCardCol, model.GridCardRow))
                         {
                             s_logger.Info(string.Format("Login refused for user {0}({1}): grid card value not valid", user.Username, user.Id));
@@ -152,6 +161,7 @@ namespace GTI619_Lab5.Controllers
 
                         loginAttempt.IsSuccessful = true;
 
+                        // validation si l'utilisateur doit changer de mot de passe
                         if (user.HasToChangePassword())
                         {
                             s_logger.Info(string.Format("Login valid {0}({1}): user has to change password", user.Username, user.Id));
@@ -159,6 +169,7 @@ namespace GTI619_Lab5.Controllers
                             return RedirectToAction("ChangePassword");
                         }
 
+                        // l'utilisateur est authentifie, on ajoute dans la session
                         SessionManager.SetLoggedInUser(user);
 
                         s_logger.Info(string.Format("Login valid {0}({1})", user.Username, user.Id));
@@ -167,10 +178,12 @@ namespace GTI619_Lab5.Controllers
                 }
                 finally
                 {
+                    // sauvegarde dans la BD
                     context.SaveChanges();
                 }
             }
 
+            // erreur inconnu, on met un message par defaut
             ModelState.AddModelError("", "Invalid username, password or grid card value.");
             model.Password = string.Empty;
             model.GridCardValue = 0;
@@ -181,6 +194,7 @@ namespace GTI619_Lab5.Controllers
 
         public ActionResult Logout()
         {
+            // deconnecte l'utilisateur
             SessionManager.LogoutUser();
             return RedirectToAction("Login");
         }
@@ -204,12 +218,14 @@ namespace GTI619_Lab5.Controllers
                 return View(new ChangePasswordModel(model.UserId));
             }
 
+            // valide que les 2 mots de passe sont les meme
             if (!model.NewPassword1.Equals(model.NewPassword2))
             {
                 ModelState.AddModelError("", "The 2 password are not equal.");
                 return View(new ChangePasswordModel(model.UserId));
             }
 
+            // valide que l'ancien mot de passe et le nouveau sont different
             if (model.OldPassword.Equals(model.NewPassword1))
             {
                 ModelState.AddModelError("", "The old and new password cannot be the same.");
@@ -247,12 +263,14 @@ namespace GTI619_Lab5.Controllers
                 }
 
                 var options = context.AdminOptions.Single();
+                // va chercher historique de mot de passe dans la base de donnees
                 var passwordHistory = context.PasswordHistories
                     .Where(x => x.UserId == model.UserId)
                     .OrderByDescending(x => x.DateChanged)
                     .Take(options.NumberOfPasswordToKeepInHistory)
                     .ToList();
 
+                // valide le mot de passe selon les critere dans la base de donnees
                 if (!PasswordValidator.Validate(model.NewPassword1, options, passwordHistory))
                 {
                     ModelState.AddModelError("", string.Format("Password must be {0} characters long.", options.MinPasswordLength));
@@ -269,6 +287,7 @@ namespace GTI619_Lab5.Controllers
                     return View(new ChangePasswordModel(model.UserId));
                 }
 
+                // valide ancien mot de passe
                 if (user.PasswordHash.Equals(HashingUtil.SaltAndHash(model.OldPassword, user.PasswordSalt)))
                 {
                     var history = new PasswordHistory
@@ -279,8 +298,10 @@ namespace GTI619_Lab5.Controllers
                         UserId = model.UserId,
                         HashingVersion = user.HashingVersion
                     };
+                    // ajout de l'ancien mot de passe dans l'history
                     context.PasswordHistories.Add(history);
 
+                    // genere un nouveau salt pour le mot de passe
                     var newSalt = Guid.NewGuid().ToString();
 
                     user.PasswordHash = HashingUtil.SaltAndHash(model.NewPassword1, newSalt);
@@ -290,6 +311,7 @@ namespace GTI619_Lab5.Controllers
                     user.DefaultPasswordValidUntil = null;
                     user.HashingVersion = HashingUtil.Version;
 
+                    // sauvegarde dans la BD
                     context.SaveChanges();
 
                     s_logger.Info(string.Format("User {0}({1}) changed his password", user.Username, user.Id));

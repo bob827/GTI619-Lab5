@@ -13,6 +13,10 @@ namespace GTI619_Lab5.Utils
         private static readonly Regex s_numberRegex = new Regex("^.*[\\d].*$", RegexOptions.Compiled);
         private static readonly Regex s_specialCharRegex = new Regex("^.*[-+_!@#$%^&*.,?<>;:'\"\\[\\]\\\\|\\/].*$", RegexOptions.Compiled);
 
+        /// <summary>
+        /// Valide le mot de passe selon les options et l'historique de mots de passe
+        /// </summary>
+        /// <returns></returns>
         public static bool Validate(string password, AdminOption options, List<PasswordHistory> passwordHistories)
         {
             bool valid = password.Length >= options.MinPasswordLength;
