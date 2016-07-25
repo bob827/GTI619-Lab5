@@ -72,6 +72,7 @@
           <Property Name="MustChangePasswordAtNextLogon" Type="bit" Nullable="false" />
           <Property Name="DefaultPasswordValidUntil" Type="datetime" />
           <Property Name="HashingVersion" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="GridCardSeed" Type="int" Nullable="false" />
         </EntityType>
         <Association Name="FK_LoginAttempts_ToUser">
           <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
@@ -202,6 +203,7 @@
           <Property Name="MustChangePasswordAtNextLogon" Type="Boolean" Nullable="false" />
           <Property Name="DefaultPasswordValidUntil" Type="DateTime" Precision="3" />
           <Property Name="HashingVersion" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="GridCardSeed" Type="Int32" Nullable="false" />
         </EntityType>
         <Association Name="FK_PasswordHistory_ToUsers">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
@@ -307,6 +309,7 @@
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="Entities.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="GridCardSeed" ColumnName="GridCardSeed" />
                 <ScalarProperty Name="HashingVersion" ColumnName="HashingVersion" />
                 <ScalarProperty Name="DefaultPasswordValidUntil" ColumnName="DefaultPasswordValidUntil" />
                 <ScalarProperty Name="MustChangePasswordAtNextLogon" ColumnName="MustChangePasswordAtNextLogon" />

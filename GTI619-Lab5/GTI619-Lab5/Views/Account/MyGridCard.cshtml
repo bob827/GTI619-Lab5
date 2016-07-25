@@ -1,0 +1,28 @@
+﻿@using GTI619_Lab5.Utils
+@model GTI619_Lab5.Models.Account.MyGridCardModel
+
+<h2>My Grid Card</h2>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th></th>
+        @for (int i = 0; i < GridCardUtil.GridSize; i++)
+        {
+            <th>@(i + 1)</th>
+        }
+    </tr>
+    </thead>
+    <tbody>
+    @for (int i = 0; i < GridCardUtil.GridSize; i++)
+    {
+        <tr>
+            <td>@(i + 1)</td>
+            @for (int j = 0; j < GridCardUtil.GridSize; j++)
+            {
+                <td>@Model.GridCard[i * GridCardUtil.GridSize + j]</td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>

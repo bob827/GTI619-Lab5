@@ -32,15 +32,25 @@ namespace GTI619_Lab5.Controllers
         public ActionResult Login()
         {
             if (SessionManager.IsUserLoggedIn()) return RedirectToAction("Index");
-            return View();
+            var r = new Random();
+            var model = new LoginModel
+            {
+                GridCardCol = r.Next( GridCardUtil.GridSize),
+                GridCardRow = r.Next( GridCardUtil.GridSize)
+            };
+            return View(model);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Login(LoginModel model)
         {
+            var r = new Random();
             if (!ModelState.IsValid)
             {
                 model.Password = string.Empty;
+                model.GridCardValue = 0;
+                model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                model.GridCardRow = r.Next(GridCardUtil.GridSize);
                 return View(model);
             }
 
@@ -62,6 +72,9 @@ namespace GTI619_Lab5.Controllers
                         s_logger.Warn(string.Format("Max login attempts was reached by IP {0}", loginAttempt.ClientIpAddress));
                         ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                         model.Password = string.Empty;
+                        model.GridCardValue = 0;
+                        model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                        model.GridCardRow = r.Next(GridCardUtil.GridSize);
                         return View(model);
                     }
 
@@ -76,6 +89,9 @@ namespace GTI619_Lab5.Controllers
                             s_logger.Info(string.Format("Login refused for user {0}({1}): default password has expired", user.Username, user.Id));
                             ModelState.AddModelError("", "Your password is no longer valid. Please contact an administrator to reset your password.");
                             model.Password = string.Empty;
+                            model.GridCardValue = 0;
+                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -84,6 +100,9 @@ namespace GTI619_Lab5.Controllers
                             s_logger.Info(string.Format("Login refused for user {0}({1}): account is locked", user.Username, user.Id));
                             ModelState.AddModelError("", "Account is locked. Please contact an administrator to unlock the account.");
                             model.Password = string.Empty;
+                            model.GridCardValue = 0;
+                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -92,6 +111,9 @@ namespace GTI619_Lab5.Controllers
                             s_logger.Info(string.Format("Login refused for user {0}({1}): accout is timedout", user.Username, user.Id));
                             ModelState.AddModelError("", "Account is timed out");
                             model.Password = string.Empty;
+                            model.GridCardValue = 0;
+                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -100,25 +122,47 @@ namespace GTI619_Lab5.Controllers
                             s_logger.Info(string.Format("Login refused for user {0}({1}): the maximum unsuccessful attempt reached", user.Username, user.Id));
                             ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                             model.Password = string.Empty;
+                            model.GridCardValue = 0;
+                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
-                        if (user.PasswordHash.Equals(HashingUtil.SaltAndHash(model.Password, user.PasswordSalt)))
+                        if (!user.PasswordHash.Equals(HashingUtil.SaltAndHash(model.Password, user.PasswordSalt)))
                         {
-                            loginAttempt.IsSuccessful = true;
-
-                            if (user.HasToChangePassword())
-                            {
-                                s_logger.Info(string.Format("Login valid {0}({1}): user has to change password", user.Username, user.Id));
-                                TempData["userId"] = user.Id;
-                                return RedirectToAction("ChangePassword");
-                            }
-
-                            SessionManager.SetLoggedInUser(user);
-
-                            s_logger.Info(string.Format("Login valid {0}({1})", user.Username, user.Id));
-                            return RedirectToAction("Index");
+                            s_logger.Info(string.Format("Login refused for user {0}({1}): invalid password", user.Username, user.Id));
+                            ModelState.AddModelError("", "Invalid username, password or grid card value.");
+                            model.Password = string.Empty;
+                            model.GridCardValue = 0;
+                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
+                            return View(model);
                         }
+
+                        if (!GridCardUtil.IsValid(model.GridCardValue, user.GridCardSeed, model.GridCardCol, model.GridCardRow))
+                        {
+                            s_logger.Info(string.Format("Login refused for user {0}({1}): grid card value not valid", user.Username, user.Id));
+                            ModelState.AddModelError("", "Invalid username, password or grid card value.");
+                            model.Password = string.Empty;
+                            model.GridCardValue = 0;
+                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
+                            return View(model);
+                        }
+
+                        loginAttempt.IsSuccessful = true;
+
+                        if (user.HasToChangePassword())
+                        {
+                            s_logger.Info(string.Format("Login valid {0}({1}): user has to change password", user.Username, user.Id));
+                            TempData["userId"] = user.Id;
+                            return RedirectToAction("ChangePassword");
+                        }
+
+                        SessionManager.SetLoggedInUser(user);
+
+                        s_logger.Info(string.Format("Login valid {0}({1})", user.Username, user.Id));
+                        return RedirectToAction("Index");
                     }
                 }
                 finally
@@ -127,8 +171,11 @@ namespace GTI619_Lab5.Controllers
                 }
             }
 
-            ModelState.AddModelError("", "Invalid username or password.");
+            ModelState.AddModelError("", "Invalid username, password or grid card value.");
             model.Password = string.Empty;
+            model.GridCardValue = 0;
+            model.GridCardCol = r.Next(GridCardUtil.GridSize);
+            model.GridCardRow = r.Next(GridCardUtil.GridSize);
             return View(model);
         }
 
@@ -255,6 +302,19 @@ namespace GTI619_Lab5.Controllers
 
             ModelState.AddModelError("", "The old password is not valid.");
             return View(new ChangePasswordModel(model.UserId));
+        }
+
+        public ActionResult MyGridCard()
+        {
+            if (!SessionManager.IsUserLoggedIn()) return RedirectToAction("Login");
+
+            using (var context = new DatabaseEntities())
+            {
+                var user = context.Users.Find(SessionManager.GetLoggedInUserId());
+                if(user == null) return RedirectToAction("Login");
+                var gridCard = GridCardUtil.GenerateGrid(user.GridCardSeed);
+                return View(new MyGridCardModel {GridCard = gridCard});
+            }
         }
     }
 }

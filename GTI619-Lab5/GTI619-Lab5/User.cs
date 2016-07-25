@@ -33,6 +33,7 @@ namespace GTI619_Lab5
         public bool MustChangePasswordAtNextLogon { get; set; }
         public Nullable<System.DateTime> DefaultPasswordValidUntil { get; set; }
         public string HashingVersion { get; set; }
+        public int GridCardSeed { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PasswordHistory> PasswordHistories { get; set; }

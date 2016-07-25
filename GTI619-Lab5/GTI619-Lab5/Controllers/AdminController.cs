@@ -292,7 +292,8 @@ namespace GTI619_Lab5.Controllers
                             PasswordSalt = salt,
                             MustChangePasswordAtNextLogon = true,
                             DefaultPasswordValidUntil = DateTime.Now.AddHours(1),
-                            HashingVersion = HashingUtil.Version
+                            HashingVersion = HashingUtil.Version,
+                            GridCardSeed = GridCardUtil.GenerateSeed()
                         };
                         context.Users.Add(user);
                         context.SaveChanges();
@@ -394,6 +395,17 @@ namespace GTI619_Lab5.Controllers
 
             model.AdminPassword = string.Empty;
             return View(model);
+        }
+
+        public ActionResult ShowGridCard(int id)
+        {
+            using (var context = new DatabaseEntities())
+            {
+                var user = context.Users.Find(id);
+                if (user == null) return RedirectToAction("Index");
+                var gridCard = GridCardUtil.GenerateGrid(user.GridCardSeed);
+                return View(new ShowGridCardModel {GridCard = gridCard, Username = user.Username});
+            }
         }
     }
 }

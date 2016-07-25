@@ -13,5 +13,11 @@ namespace GTI619_Lab5.Models.Account
 
         [Required, Display(Name = "Password")]
         public string Password { get; set; }
+        
+        public int GridCardCol { get; set; }
+        public int GridCardRow { get; set; }
+
+        [Required, Display(Name = "Grid Card Value")]
+        public int GridCardValue { get; set; }
     }
 }

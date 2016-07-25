@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\Users\jean_\Documents\workspace\GTI619\GTI619-Lab5\GTI619-Lab5\GTI619-Lab5\Model.edmx'. 
+﻿// T4 code generation is enabled for model 'D:\My Documents\workspace\GTI619\GTI619-Lab5\GTI619-Lab5\GTI619-Lab5\Model.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

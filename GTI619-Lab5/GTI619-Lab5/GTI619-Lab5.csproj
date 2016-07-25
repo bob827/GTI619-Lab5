@@ -204,11 +204,13 @@
     </Compile>
     <Compile Include="Models\Account\ChangePasswordModel.cs" />
     <Compile Include="Models\Account\LoginModel.cs" />
+    <Compile Include="Models\Account\MyGridCardModel.cs" />
     <Compile Include="Models\Admin\CreateUserModel.cs" />
     <Compile Include="Models\Admin\EditUserRolesModel.cs" />
     <Compile Include="Models\Admin\GlobalSecuritySettingsModel.cs" />
     <Compile Include="Models\Admin\IndexModel.cs" />
     <Compile Include="Models\Admin\ResetUserPasswordModel.cs" />
+    <Compile Include="Models\Admin\ShowGridCardModel.cs" />
     <Compile Include="Models\Home\MenuModel.cs" />
     <Compile Include="PasswordHistory.cs">
       <DependentUpon>Model.tt</DependentUpon>
@@ -221,6 +223,7 @@
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
     <Compile Include="Utils\DatabaseEntities.cs" />
+    <Compile Include="Utils\GridCardUtil.cs" />
     <Compile Include="Utils\HashingUtil.cs" />
     <Compile Include="Utils\PasswordValidator.cs" />
     <Compile Include="Utils\SessionManager.cs" />
@@ -240,11 +243,13 @@
     <Content Include="Views\Admin\GlobalSecuritySettings.cshtml" />
     <Content Include="Views\Account\Index.cshtml" />
     <Content Include="Views\Account\ChangePassword.cshtml" />
-    <None Include="Views\Admin\CreateUser.cshtml" />
+    <Content Include="Views\Account\MyGridCard.cshtml" />
+    <Content Include="Views\Admin\CreateUser.cshtml" />
     <Content Include="Views\Admin\DeleteUser.cshtml" />
     <Content Include="Views\Admin\EditUserRoles.cshtml" />
-    <None Include="Views\Home\Menu.cshtml" />
+    <Content Include="Views\Home\Menu.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Admin\ShowGridCard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
