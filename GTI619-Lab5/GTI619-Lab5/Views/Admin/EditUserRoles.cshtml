@@ -1,10 +1,10 @@
 ﻿@model GTI619_Lab5.Models.Admin.EditUserRolesModel
 
 @{
-    ViewBag.Title = "EditUserRoles";
+    ViewBag.Title = "Edit User Roles";
 }
 
-<h2>EditUserRoles</h2>
+<h2>Edit User Roles</h2>
 
 <div>
     <h4>Edit the roles of @Html.DisplayNameFor(model => model.Username)</h4>
@@ -18,14 +18,18 @@
 
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-            @foreach (var item in Model.AvailableRoles)
-            {
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="SelectedRoleIds" value="@item.Key" @(Model.SelectedRoleIds.Contains(item.Key)?"checked=\"checked\"":"")>@item.Value
-                    </label>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    @foreach (var item in Model.AvailableRoles)
+                {
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="SelectedRoleIds" value="@item.Key" @(Model.SelectedRoleIds.Contains(item.Key) ? "checked=\"checked\"" : "")>@item.Value
+                            </label>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
 
             <div class="form-group">
 
