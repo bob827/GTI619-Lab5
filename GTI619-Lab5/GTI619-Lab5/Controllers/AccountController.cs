@@ -35,8 +35,8 @@ namespace GTI619_Lab5.Controllers
             var r = new Random();
             var model = new LoginModel
             {
-                GridCardCol = r.Next( GridCardUtil.GridSize),
-                GridCardRow = r.Next( GridCardUtil.GridSize)
+                GridCardCol = r.Next(GridCardUtil.GridSize),
+                GridCardRow = r.Next(GridCardUtil.GridSize)
             };
             return View(model);
         }
@@ -50,8 +50,6 @@ namespace GTI619_Lab5.Controllers
                 // il y a des erreurs dans le modele
                 model.Password = string.Empty;
                 model.GridCardValue = 0;
-                model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                model.GridCardRow = r.Next(GridCardUtil.GridSize);
                 return View(model);
             }
 
@@ -75,8 +73,6 @@ namespace GTI619_Lab5.Controllers
                         ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                         model.Password = string.Empty;
                         model.GridCardValue = 0;
-                        model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                        model.GridCardRow = r.Next(GridCardUtil.GridSize);
                         return View(model);
                     }
 
@@ -94,8 +90,6 @@ namespace GTI619_Lab5.Controllers
                             ModelState.AddModelError("", "Your password is no longer valid. Please contact an administrator to reset your password.");
                             model.Password = string.Empty;
                             model.GridCardValue = 0;
-                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -106,8 +100,6 @@ namespace GTI619_Lab5.Controllers
                             ModelState.AddModelError("", "Account is locked. Please contact an administrator to unlock the account.");
                             model.Password = string.Empty;
                             model.GridCardValue = 0;
-                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -118,8 +110,6 @@ namespace GTI619_Lab5.Controllers
                             ModelState.AddModelError("", "Account is timed out");
                             model.Password = string.Empty;
                             model.GridCardValue = 0;
-                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -130,8 +120,6 @@ namespace GTI619_Lab5.Controllers
                             ModelState.AddModelError("", "Maximum number of unsuccessful login attempt reached.");
                             model.Password = string.Empty;
                             model.GridCardValue = 0;
-                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -142,11 +130,9 @@ namespace GTI619_Lab5.Controllers
                             ModelState.AddModelError("", "Invalid username, password or grid card value.");
                             model.Password = string.Empty;
                             model.GridCardValue = 0;
-                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
-                        
+
                         // validation de la valeur de la grid gard
                         if (!GridCardUtil.IsValid(model.GridCardValue, user.GridCardSeed, model.GridCardCol, model.GridCardRow))
                         {
@@ -154,8 +140,6 @@ namespace GTI619_Lab5.Controllers
                             ModelState.AddModelError("", "Invalid username, password or grid card value.");
                             model.Password = string.Empty;
                             model.GridCardValue = 0;
-                            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-                            model.GridCardRow = r.Next(GridCardUtil.GridSize);
                             return View(model);
                         }
 
@@ -187,8 +171,6 @@ namespace GTI619_Lab5.Controllers
             ModelState.AddModelError("", "Invalid username, password or grid card value.");
             model.Password = string.Empty;
             model.GridCardValue = 0;
-            model.GridCardCol = r.Next(GridCardUtil.GridSize);
-            model.GridCardRow = r.Next(GridCardUtil.GridSize);
             return View(model);
         }
 
@@ -204,7 +186,7 @@ namespace GTI619_Lab5.Controllers
             var userId = (int?)TempData["userId"];
             if (!userId.HasValue)
             {
-                if(!SessionManager.IsUserLoggedIn()) return RedirectToAction("Login");
+                if (!SessionManager.IsUserLoggedIn()) return RedirectToAction("Login");
                 userId = SessionManager.GetLoggedInUserId();
             }
             return View(new ChangePasswordModel(userId.Value));
@@ -274,7 +256,7 @@ namespace GTI619_Lab5.Controllers
                 if (!PasswordValidator.Validate(model.NewPassword1, options, passwordHistory))
                 {
                     ModelState.AddModelError("", string.Format("Password must be {0} characters long.", options.MinPasswordLength));
-                    if(options.IsLowerCaseCharacterRequired)
+                    if (options.IsLowerCaseCharacterRequired)
                         ModelState.AddModelError("", "Password must contain at least one lower case character");
                     if (options.IsUpperCaseCharacterRequired)
                         ModelState.AddModelError("", "Password must contain at least one upper case character");
@@ -333,9 +315,9 @@ namespace GTI619_Lab5.Controllers
             using (var context = new DatabaseEntities())
             {
                 var user = context.Users.Find(SessionManager.GetLoggedInUserId());
-                if(user == null) return RedirectToAction("Login");
+                if (user == null) return RedirectToAction("Login");
                 var gridCard = GridCardUtil.GenerateGrid(user.GridCardSeed);
-                return View(new MyGridCardModel {GridCard = gridCard});
+                return View(new MyGridCardModel { GridCard = gridCard });
             }
         }
     }
