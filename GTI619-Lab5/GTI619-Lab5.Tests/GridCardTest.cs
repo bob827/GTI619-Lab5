@@ -10,13 +10,6 @@ namespace GTI619_Lab5.Tests
         [TestMethod]
         public void TestMethod1()
         {
-
-            /*
-             * Grid card avec le seed 0
-             * 72  81  76
-             * 55  20  55
-             * 90  44  97
-             * */
             var grid = GridCardUtil.GenerateGrid(0);
             var grid2 = GridCardUtil.GenerateGrid(0);
 
